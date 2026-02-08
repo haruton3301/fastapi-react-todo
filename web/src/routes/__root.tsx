@@ -20,7 +20,7 @@ function RootLayout() {
           </Link>
         </div>
       </header>
-      <main className="container mx-auto p-4">
+      <main className="container mx-auto p-6">
         <Outlet />
       </main>
       <TanStackRouterDevtools />

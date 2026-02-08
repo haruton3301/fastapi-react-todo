@@ -67,3 +67,15 @@ docker compose down
 # DBデータも含めて削除
 docker compose down -v
 ```
+
+### Web
+
+```bash
+cd web
+
+# パッケージインストール
+pnpm install
+
+# 開発サーバー起動
+pnpm run dev
+```
