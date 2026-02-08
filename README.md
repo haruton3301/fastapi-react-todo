@@ -17,7 +17,7 @@
 | 設定管理 | pydantic-settings |
 | コンテナ | Docker / Docker Compose |
 
-### Web（`web/`）※未実装
+### Web（`web/`）
 
 | カテゴリ | 技術 |
 |---------|------|
@@ -76,6 +76,9 @@ cd web
 # パッケージインストール
 pnpm install
 
-# 開発サーバー起動
-pnpm run dev
+# APIクライアント・Zodスキーマ生成（要API起動）
+pnpm generate:api
+
+# 開発サーバー起動（http://localhost:3000）
+pnpm dev
 ```
