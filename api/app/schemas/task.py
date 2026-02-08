@@ -5,8 +5,8 @@ from pydantic import BaseModel, Field
 
 class TaskBase(BaseModel):
     """タスクの共通フィールド"""
-    title: str = Field(..., max_length=255)
-    content: str | None = None
+    title: str = Field(..., min_length=1, max_length=255)
+    content: str
     due_date: date
 
 
