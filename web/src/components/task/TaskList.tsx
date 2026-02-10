@@ -6,6 +6,7 @@ import {
   getListTasksTasksGetQueryKey,
 } from "../../api/generated";
 import { TaskItem } from "./TaskItem";
+import { myToast } from "../../lib/toast";
 
 export function TaskList() {
   const [order, setOrder] = useState<"asc" | "desc">("desc");
@@ -17,6 +18,10 @@ export function TaskList() {
         queryClient.invalidateQueries({
           queryKey: getListTasksTasksGetQueryKey(),
         });
+        myToast.success("タスクを削除しました");
+      },
+      onError: () => {
+        myToast.error("タスクの削除に失敗しました");
       },
     },
   });

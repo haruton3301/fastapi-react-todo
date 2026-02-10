@@ -6,6 +6,7 @@ import {
   getListTasksTasksGetQueryKey,
 } from "../api/generated";
 import { TaskForm } from "../components/task/TaskForm";
+import { myToast } from "../lib/toast";
 
 export const Route = createFileRoute("/tasks/$taskId/edit")({
   component: TaskEdit,
@@ -23,7 +24,11 @@ function TaskEdit() {
         queryClient.invalidateQueries({
           queryKey: getListTasksTasksGetQueryKey(),
         });
+        myToast.success("タスクを更新しました");
         navigate({ to: "/" });
+      },
+      onError: () => {
+        myToast.error("タスクの更新に失敗しました");
       },
     },
   });
