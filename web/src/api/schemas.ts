@@ -11,12 +11,8 @@ import * as zod from 'zod';
  * タスク一覧取得（締切日でソート）
  * @summary List Tasks
  */
-export const listTasksTasksGetQueryOrderDefault = `desc`;
-export const listTasksTasksGetQueryOrderRegExp = new RegExp('^(asc|desc)$');
-
-
 export const ListTasksTasksGetQueryParams = zod.object({
-  "order": zod.string().regex(listTasksTasksGetQueryOrderRegExp).default(listTasksTasksGetQueryOrderDefault)
+  "order": zod.enum(['asc', 'desc']).optional()
 })
 
 export const listTasksTasksGetResponseTasksItemTitleMax = 255;

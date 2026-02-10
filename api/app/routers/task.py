@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.crud import task as task_crud
 from app.models.task import Task
+from app.schemas.common import SortOrder
 from app.schemas.task import TaskCreate, TaskUpdate, TaskResponse, TaskListResponse
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
@@ -22,7 +23,7 @@ def get_task_or_404(
 
 @router.get("", response_model=TaskListResponse)
 def list_tasks(
-    order: str = Query(default="desc", regex="^(asc|desc)$"),
+    order: SortOrder = Query(default=SortOrder.desc),
     db: Session = Depends(get_db),
 ):
     """タスク一覧取得（締切日でソート）"""

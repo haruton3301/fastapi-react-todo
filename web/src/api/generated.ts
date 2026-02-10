@@ -40,6 +40,17 @@ export interface HTTPValidationError {
 }
 
 /**
+ * ソート順
+ */
+export type SortOrder = typeof SortOrder[keyof typeof SortOrder];
+
+
+export const SortOrder = {
+  asc: 'asc',
+  desc: 'desc',
+} as const;
+
+/**
  * タスク作成用スキーマ
  */
 export interface TaskCreate {
@@ -89,10 +100,7 @@ export interface TaskUpdate {
 }
 
 export type ListTasksTasksGetParams = {
-/**
- * @pattern ^(asc|desc)$
- */
-order?: string;
+order?: SortOrder;
 };
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
