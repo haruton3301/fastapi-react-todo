@@ -165,6 +165,7 @@ export interface TaskUpdate {
 
 export type ListTasksTasksGetParams = {
 order?: SortOrder;
+q?: string | null;
 };
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];

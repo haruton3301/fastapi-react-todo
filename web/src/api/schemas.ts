@@ -147,7 +147,8 @@ export const ReorderStatusesStatusesReorderPutResponse = zod.object({
  * @summary List Tasks
  */
 export const ListTasksTasksGetQueryParams = zod.object({
-  "order": zod.enum(['asc', 'desc']).optional()
+  "order": zod.enum(['asc', 'desc']).optional(),
+  "q": zod.union([zod.string(),zod.null()]).optional()
 })
 
 export const listTasksTasksGetResponseTasksItemTitleMax = 255;

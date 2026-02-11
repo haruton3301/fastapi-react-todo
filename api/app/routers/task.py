@@ -24,10 +24,11 @@ def get_task_or_404(
 @router.get("", response_model=TaskListResponse)
 def list_tasks(
     order: SortOrder = Query(default=SortOrder.desc),
+    q: str | None = Query(default=None),
     db: Session = Depends(get_db),
 ):
     """タスク一覧取得（締切日でソート）"""
-    tasks = task_crud.get_tasks(db, order=order)
+    tasks = task_crud.get_tasks(db, order=order, keyword=q)
     return TaskListResponse(tasks=tasks)
 
 

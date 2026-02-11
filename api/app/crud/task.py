@@ -5,10 +5,13 @@ from app.models.task import Task
 from app.schemas.task import TaskCreate, TaskUpdate
 
 
-def get_tasks(db: Session, order: str = "desc") -> list[Task]:
+def get_tasks(db: Session, order: str = "desc", keyword: str | None = None) -> list[Task]:
     """タスク一覧取得（締切日でソート）"""
     order_func = desc if order == "desc" else asc
-    return db.query(Task).order_by(order_func(Task.due_date)).all()
+    query = db.query(Task)
+    if keyword:
+        query = query.filter(Task.title.contains(keyword) | Task.content.contains(keyword))
+    return query.order_by(order_func(Task.due_date)).all()
 
 
 def get_task(db: Session, task_id: int) -> Task | None:

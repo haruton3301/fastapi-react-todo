@@ -90,6 +90,43 @@ class TestListTasks:
         assert tasks[0]["title"] == "古い"
         assert tasks[1]["title"] == "新しい"
 
+    def test_search_by_title(self, client: TestClient):
+        status = _create_status(client)
+        sid = status["id"]
+        _create_task(client, title="買い物リスト", content="牛乳を買う", status_id=sid)
+        _create_task(client, title="会議準備", content="資料を作成", status_id=sid)
+
+        tasks = client.get("/tasks", params={"q": "買い物"}).json()["tasks"]
+        assert len(tasks) == 1
+        assert tasks[0]["title"] == "買い物リスト"
+
+    def test_search_by_content(self, client: TestClient):
+        status = _create_status(client)
+        sid = status["id"]
+        _create_task(client, title="タスクA", content="牛乳を買う", status_id=sid)
+        _create_task(client, title="タスクB", content="資料を作成", status_id=sid)
+
+        tasks = client.get("/tasks", params={"q": "牛乳"}).json()["tasks"]
+        assert len(tasks) == 1
+        assert tasks[0]["title"] == "タスクA"
+
+    def test_search_no_match(self, client: TestClient):
+        status = _create_status(client)
+        sid = status["id"]
+        _create_task(client, title="タスクA", content="内容A", status_id=sid)
+
+        tasks = client.get("/tasks", params={"q": "存在しない"}).json()["tasks"]
+        assert len(tasks) == 0
+
+    def test_search_without_q_returns_all(self, client: TestClient):
+        status = _create_status(client)
+        sid = status["id"]
+        _create_task(client, title="タスク1", status_id=sid)
+        _create_task(client, title="タスク2", status_id=sid)
+
+        tasks = client.get("/tasks").json()["tasks"]
+        assert len(tasks) == 2
+
 
 class TestGetTask:
     def test_get(self, client: TestClient):
