@@ -8,6 +8,141 @@
 import * as zod from 'zod';
 
 /**
+ * ステータス一覧取得（order順）
+ * @summary List Statuses
+ */
+export const listStatusesStatusesGetResponseStatusesItemNameMax = 50;
+
+export const listStatusesStatusesGetResponseStatusesItemColorMax = 7;
+
+
+
+export const ListStatusesStatusesGetResponse = zod.object({
+  "statuses": zod.array(zod.object({
+  "name": zod.string().min(1).max(listStatusesStatusesGetResponseStatusesItemNameMax),
+  "color": zod.string().max(listStatusesStatusesGetResponseStatusesItemColorMax),
+  "id": zod.number(),
+  "order": zod.number(),
+  "created_at": zod.iso.datetime({}),
+  "updated_at": zod.iso.datetime({})
+}).describe('ステータスレスポンス用スキーマ'))
+}).describe('ステータス一覧レスポンス用スキーマ')
+
+
+/**
+ * ステータス作成
+ * @summary Create Status
+ */
+export const createStatusStatusesPostBodyNameMax = 50;
+
+export const createStatusStatusesPostBodyColorMax = 7;
+
+
+
+export const CreateStatusStatusesPostBody = zod.object({
+  "name": zod.string().min(1).max(createStatusStatusesPostBodyNameMax),
+  "color": zod.string().max(createStatusStatusesPostBodyColorMax)
+}).describe('ステータス作成用スキーマ')
+
+
+/**
+ * ステータス詳細取得
+ * @summary Get Status
+ */
+export const GetStatusStatusesStatusIdGetParams = zod.object({
+  "status_id": zod.number()
+})
+
+export const getStatusStatusesStatusIdGetResponseNameMax = 50;
+
+export const getStatusStatusesStatusIdGetResponseColorMax = 7;
+
+
+
+export const GetStatusStatusesStatusIdGetResponse = zod.object({
+  "name": zod.string().min(1).max(getStatusStatusesStatusIdGetResponseNameMax),
+  "color": zod.string().max(getStatusStatusesStatusIdGetResponseColorMax),
+  "id": zod.number(),
+  "order": zod.number(),
+  "created_at": zod.iso.datetime({}),
+  "updated_at": zod.iso.datetime({})
+}).describe('ステータスレスポンス用スキーマ')
+
+
+/**
+ * ステータス更新
+ * @summary Update Status
+ */
+export const UpdateStatusStatusesStatusIdPutParams = zod.object({
+  "status_id": zod.number()
+})
+
+export const updateStatusStatusesStatusIdPutBodyNameMax = 50;
+
+export const updateStatusStatusesStatusIdPutBodyColorMax = 7;
+
+
+
+export const UpdateStatusStatusesStatusIdPutBody = zod.object({
+  "name": zod.string().min(1).max(updateStatusStatusesStatusIdPutBodyNameMax),
+  "color": zod.string().max(updateStatusStatusesStatusIdPutBodyColorMax)
+}).describe('ステータス更新用スキーマ')
+
+export const updateStatusStatusesStatusIdPutResponseNameMax = 50;
+
+export const updateStatusStatusesStatusIdPutResponseColorMax = 7;
+
+
+
+export const UpdateStatusStatusesStatusIdPutResponse = zod.object({
+  "name": zod.string().min(1).max(updateStatusStatusesStatusIdPutResponseNameMax),
+  "color": zod.string().max(updateStatusStatusesStatusIdPutResponseColorMax),
+  "id": zod.number(),
+  "order": zod.number(),
+  "created_at": zod.iso.datetime({}),
+  "updated_at": zod.iso.datetime({})
+}).describe('ステータスレスポンス用スキーマ')
+
+
+/**
+ * ステータス削除
+ * @summary Delete Status
+ */
+export const DeleteStatusStatusesStatusIdDeleteParams = zod.object({
+  "status_id": zod.number()
+})
+
+
+/**
+ * ステータス並び替え
+ * @summary Reorder Statuses
+ */
+
+
+
+export const ReorderStatusesStatusesReorderPutBody = zod.object({
+  "order": zod.array(zod.number()).min(1).describe('並び順のステータスIDリスト')
+}).describe('ステータス並び替え用スキーマ')
+
+export const reorderStatusesStatusesReorderPutResponseStatusesItemNameMax = 50;
+
+export const reorderStatusesStatusesReorderPutResponseStatusesItemColorMax = 7;
+
+
+
+export const ReorderStatusesStatusesReorderPutResponse = zod.object({
+  "statuses": zod.array(zod.object({
+  "name": zod.string().min(1).max(reorderStatusesStatusesReorderPutResponseStatusesItemNameMax),
+  "color": zod.string().max(reorderStatusesStatusesReorderPutResponseStatusesItemColorMax),
+  "id": zod.number(),
+  "order": zod.number(),
+  "created_at": zod.iso.datetime({}),
+  "updated_at": zod.iso.datetime({})
+}).describe('ステータスレスポンス用スキーマ'))
+}).describe('ステータス一覧レスポンス用スキーマ')
+
+
+/**
  * タスク一覧取得（締切日でソート）
  * @summary List Tasks
  */
@@ -24,6 +159,7 @@ export const ListTasksTasksGetResponse = zod.object({
   "title": zod.string().min(1).max(listTasksTasksGetResponseTasksItemTitleMax),
   "content": zod.string(),
   "due_date": zod.iso.date(),
+  "status_id": zod.number(),
   "id": zod.number(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
@@ -42,7 +178,8 @@ export const createTaskTasksPostBodyTitleMax = 255;
 export const CreateTaskTasksPostBody = zod.object({
   "title": zod.string().min(1).max(createTaskTasksPostBodyTitleMax),
   "content": zod.string(),
-  "due_date": zod.iso.date()
+  "due_date": zod.iso.date(),
+  "status_id": zod.number()
 }).describe('タスク作成用スキーマ')
 
 
@@ -62,6 +199,7 @@ export const GetTaskTasksTaskIdGetResponse = zod.object({
   "title": zod.string().min(1).max(getTaskTasksTaskIdGetResponseTitleMax),
   "content": zod.string(),
   "due_date": zod.iso.date(),
+  "status_id": zod.number(),
   "id": zod.number(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})
@@ -83,7 +221,8 @@ export const updateTaskTasksTaskIdPutBodyTitleMax = 255;
 export const UpdateTaskTasksTaskIdPutBody = zod.object({
   "title": zod.string().min(1).max(updateTaskTasksTaskIdPutBodyTitleMax),
   "content": zod.string(),
-  "due_date": zod.iso.date()
+  "due_date": zod.iso.date(),
+  "status_id": zod.number()
 }).describe('タスク更新用スキーマ')
 
 export const updateTaskTasksTaskIdPutResponseTitleMax = 255;
@@ -94,6 +233,7 @@ export const UpdateTaskTasksTaskIdPutResponse = zod.object({
   "title": zod.string().min(1).max(updateTaskTasksTaskIdPutResponseTitleMax),
   "content": zod.string(),
   "due_date": zod.iso.date(),
+  "status_id": zod.number(),
   "id": zod.number(),
   "created_at": zod.iso.datetime({}),
   "updated_at": zod.iso.datetime({})

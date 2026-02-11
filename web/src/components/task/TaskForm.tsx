@@ -2,6 +2,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
 import { CreateTaskTasksPostBody } from "../../api/schemas";
+import {
+  useListStatusesStatusesGet,
+  type StatusResponse,
+} from "../../api/generated";
 
 type TaskFormValues = z.infer<typeof CreateTaskTasksPostBody>;
 
@@ -12,6 +16,9 @@ type Props = {
 };
 
 export function TaskForm({ defaultValues, onSubmit, isPending }: Props) {
+  const { data: statusData } = useListStatusesStatusesGet();
+  const statuses: StatusResponse[] = statusData?.statuses ?? [];
+
   const {
     register,
     handleSubmit,
@@ -22,6 +29,7 @@ export function TaskForm({ defaultValues, onSubmit, isPending }: Props) {
       title: "",
       content: "",
       due_date: "",
+      status_id: statuses[0]?.id ?? 0,
     },
   });
 
@@ -69,6 +77,26 @@ export function TaskForm({ defaultValues, onSubmit, isPending }: Props) {
         />
         {errors.due_date && (
           <p className="text-error text-sm mt-1">{errors.due_date.message}</p>
+        )}
+      </fieldset>
+
+      <fieldset className="fieldset">
+        <label className="fieldset-label" htmlFor="status_id">
+          ステータス
+        </label>
+        <select
+          id="status_id"
+          className={`select select-bordered w-full ${errors.status_id ? "select-error" : ""}`}
+          {...register("status_id", { valueAsNumber: true })}
+        >
+          {statuses.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+        {errors.status_id && (
+          <p className="text-error text-sm mt-1">{errors.status_id.message}</p>
         )}
       </fieldset>
 

@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import type { TaskResponse } from "../../api/generated";
+import type { TaskResponse, StatusResponse } from "../../api/generated";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 
 type Props = {
   task: TaskResponse;
+  status?: StatusResponse;
   onDelete: (id: number) => void;
 };
 
-export function TaskItem({ task, onDelete }: Props) {
+export function TaskItem({ task, status, onDelete }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isOverdue = new Date(task.due_date) < new Date(new Date().toDateString());
 
@@ -17,6 +18,18 @@ export function TaskItem({ task, onDelete }: Props) {
       <td className="font-medium">{task.title}</td>
       <td className="max-w-xs truncate text-base-content/60">
         {task.content || "—"}
+      </td>
+      <td>
+        {status ? (
+          <span
+            className="badge badge-sm"
+            style={{ backgroundColor: status.color, color: "#fff" }}
+          >
+            {status.name}
+          </span>
+        ) : (
+          "—"
+        )}
       </td>
       <td>
         <span className={isOverdue ? "text-error font-semibold" : ""}>

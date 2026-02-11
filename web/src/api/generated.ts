@@ -51,6 +51,67 @@ export const SortOrder = {
 } as const;
 
 /**
+ * ステータス作成用スキーマ
+ */
+export interface StatusCreate {
+  /**
+   * @minLength 1
+   * @maxLength 50
+   */
+  name: string;
+  /** @maxLength 7 */
+  color: string;
+}
+
+/**
+ * ステータスレスポンス用スキーマ
+ */
+export interface StatusResponse {
+  /**
+   * @minLength 1
+   * @maxLength 50
+   */
+  name: string;
+  /** @maxLength 7 */
+  color: string;
+  id: number;
+  order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * ステータス一覧レスポンス用スキーマ
+ */
+export interface StatusListResponse {
+  statuses: StatusResponse[];
+}
+
+/**
+ * ステータス並び替え用スキーマ
+ */
+export interface StatusReorder {
+  /**
+   * 並び順のステータスIDリスト
+   * @minItems 1
+   */
+  order: number[];
+}
+
+/**
+ * ステータス更新用スキーマ
+ */
+export interface StatusUpdate {
+  /**
+   * @minLength 1
+   * @maxLength 50
+   */
+  name: string;
+  /** @maxLength 7 */
+  color: string;
+}
+
+/**
  * タスク作成用スキーマ
  */
 export interface TaskCreate {
@@ -61,6 +122,7 @@ export interface TaskCreate {
   title: string;
   content: string;
   due_date: string;
+  status_id: number;
 }
 
 /**
@@ -74,6 +136,7 @@ export interface TaskResponse {
   title: string;
   content: string;
   due_date: string;
+  status_id: number;
   id: number;
   created_at: string;
   updated_at: string;
@@ -97,6 +160,7 @@ export interface TaskUpdate {
   title: string;
   content: string;
   due_date: string;
+  status_id: number;
 }
 
 export type ListTasksTasksGetParams = {
@@ -107,6 +171,494 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
+/**
+ * ステータス一覧取得（order順）
+ * @summary List Statuses
+ */
+export const getListStatusesStatusesGetUrl = () => {
+
+
+  
+
+  return `/statuses`
+}
+
+export const listStatusesStatusesGet = async ( options?: RequestInit): Promise<StatusListResponse> => {
+  
+  return client<StatusListResponse>(getListStatusesStatusesGetUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getListStatusesStatusesGetQueryKey = () => {
+    return [
+    `/statuses`
+    ] as const;
+    }
+
+    
+export const getListStatusesStatusesGetQueryOptions = <TData = Awaited<ReturnType<typeof listStatusesStatusesGet>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listStatusesStatusesGet>>, TError, TData>>, request?: SecondParameter<typeof client>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListStatusesStatusesGetQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listStatusesStatusesGet>>> = ({ signal }) => listStatusesStatusesGet({ signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listStatusesStatusesGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListStatusesStatusesGetQueryResult = NonNullable<Awaited<ReturnType<typeof listStatusesStatusesGet>>>
+export type ListStatusesStatusesGetQueryError = unknown
+
+
+export function useListStatusesStatusesGet<TData = Awaited<ReturnType<typeof listStatusesStatusesGet>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listStatusesStatusesGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listStatusesStatusesGet>>,
+          TError,
+          Awaited<ReturnType<typeof listStatusesStatusesGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListStatusesStatusesGet<TData = Awaited<ReturnType<typeof listStatusesStatusesGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listStatusesStatusesGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listStatusesStatusesGet>>,
+          TError,
+          Awaited<ReturnType<typeof listStatusesStatusesGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListStatusesStatusesGet<TData = Awaited<ReturnType<typeof listStatusesStatusesGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listStatusesStatusesGet>>, TError, TData>>, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Statuses
+ */
+
+export function useListStatusesStatusesGet<TData = Awaited<ReturnType<typeof listStatusesStatusesGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listStatusesStatusesGet>>, TError, TData>>, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListStatusesStatusesGetQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * ステータス作成
+ * @summary Create Status
+ */
+export const getCreateStatusStatusesPostUrl = () => {
+
+
+  
+
+  return `/statuses`
+}
+
+export const createStatusStatusesPost = async (statusCreate: StatusCreate, options?: RequestInit): Promise<StatusResponse> => {
+  
+  return client<StatusResponse>(getCreateStatusStatusesPostUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      statusCreate,)
+  }
+);}
+
+
+
+
+export const getCreateStatusStatusesPostMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createStatusStatusesPost>>, TError,{data: StatusCreate}, TContext>, request?: SecondParameter<typeof client>}
+): UseMutationOptions<Awaited<ReturnType<typeof createStatusStatusesPost>>, TError,{data: StatusCreate}, TContext> => {
+
+const mutationKey = ['createStatusStatusesPost'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createStatusStatusesPost>>, {data: StatusCreate}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createStatusStatusesPost(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateStatusStatusesPostMutationResult = NonNullable<Awaited<ReturnType<typeof createStatusStatusesPost>>>
+    export type CreateStatusStatusesPostMutationBody = StatusCreate
+    export type CreateStatusStatusesPostMutationError = HTTPValidationError
+
+    /**
+ * @summary Create Status
+ */
+export const useCreateStatusStatusesPost = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createStatusStatusesPost>>, TError,{data: StatusCreate}, TContext>, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createStatusStatusesPost>>,
+        TError,
+        {data: StatusCreate},
+        TContext
+      > => {
+      return useMutation(getCreateStatusStatusesPostMutationOptions(options), queryClient);
+    }
+    
+/**
+ * ステータス詳細取得
+ * @summary Get Status
+ */
+export const getGetStatusStatusesStatusIdGetUrl = (statusId: number,) => {
+
+
+  
+
+  return `/statuses/${statusId}`
+}
+
+export const getStatusStatusesStatusIdGet = async (statusId: number, options?: RequestInit): Promise<StatusResponse> => {
+  
+  return client<StatusResponse>(getGetStatusStatusesStatusIdGetUrl(statusId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetStatusStatusesStatusIdGetQueryKey = (statusId: number,) => {
+    return [
+    `/statuses/${statusId}`
+    ] as const;
+    }
+
+    
+export const getGetStatusStatusesStatusIdGetQueryOptions = <TData = Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>, TError = HTTPValidationError>(statusId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>, TError, TData>>, request?: SecondParameter<typeof client>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetStatusStatusesStatusIdGetQueryKey(statusId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>> = ({ signal }) => getStatusStatusesStatusIdGet(statusId, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(statusId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetStatusStatusesStatusIdGetQueryResult = NonNullable<Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>>
+export type GetStatusStatusesStatusIdGetQueryError = HTTPValidationError
+
+
+export function useGetStatusStatusesStatusIdGet<TData = Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>, TError = HTTPValidationError>(
+ statusId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>,
+          TError,
+          Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetStatusStatusesStatusIdGet<TData = Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>, TError = HTTPValidationError>(
+ statusId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>,
+          TError,
+          Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetStatusStatusesStatusIdGet<TData = Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>, TError = HTTPValidationError>(
+ statusId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>, TError, TData>>, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Status
+ */
+
+export function useGetStatusStatusesStatusIdGet<TData = Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>, TError = HTTPValidationError>(
+ statusId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStatusStatusesStatusIdGet>>, TError, TData>>, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetStatusStatusesStatusIdGetQueryOptions(statusId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * ステータス更新
+ * @summary Update Status
+ */
+export const getUpdateStatusStatusesStatusIdPutUrl = (statusId: number,) => {
+
+
+  
+
+  return `/statuses/${statusId}`
+}
+
+export const updateStatusStatusesStatusIdPut = async (statusId: number,
+    statusUpdate: StatusUpdate, options?: RequestInit): Promise<StatusResponse> => {
+  
+  return client<StatusResponse>(getUpdateStatusStatusesStatusIdPutUrl(statusId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      statusUpdate,)
+  }
+);}
+
+
+
+
+export const getUpdateStatusStatusesStatusIdPutMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateStatusStatusesStatusIdPut>>, TError,{statusId: number;data: StatusUpdate}, TContext>, request?: SecondParameter<typeof client>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateStatusStatusesStatusIdPut>>, TError,{statusId: number;data: StatusUpdate}, TContext> => {
+
+const mutationKey = ['updateStatusStatusesStatusIdPut'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateStatusStatusesStatusIdPut>>, {statusId: number;data: StatusUpdate}> = (props) => {
+          const {statusId,data} = props ?? {};
+
+          return  updateStatusStatusesStatusIdPut(statusId,data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateStatusStatusesStatusIdPutMutationResult = NonNullable<Awaited<ReturnType<typeof updateStatusStatusesStatusIdPut>>>
+    export type UpdateStatusStatusesStatusIdPutMutationBody = StatusUpdate
+    export type UpdateStatusStatusesStatusIdPutMutationError = HTTPValidationError
+
+    /**
+ * @summary Update Status
+ */
+export const useUpdateStatusStatusesStatusIdPut = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateStatusStatusesStatusIdPut>>, TError,{statusId: number;data: StatusUpdate}, TContext>, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateStatusStatusesStatusIdPut>>,
+        TError,
+        {statusId: number;data: StatusUpdate},
+        TContext
+      > => {
+      return useMutation(getUpdateStatusStatusesStatusIdPutMutationOptions(options), queryClient);
+    }
+    
+/**
+ * ステータス削除
+ * @summary Delete Status
+ */
+export const getDeleteStatusStatusesStatusIdDeleteUrl = (statusId: number,) => {
+
+
+  
+
+  return `/statuses/${statusId}`
+}
+
+export const deleteStatusStatusesStatusIdDelete = async (statusId: number, options?: RequestInit): Promise<void> => {
+  
+  return client<void>(getDeleteStatusStatusesStatusIdDeleteUrl(statusId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+
+export const getDeleteStatusStatusesStatusIdDeleteMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteStatusStatusesStatusIdDelete>>, TError,{statusId: number}, TContext>, request?: SecondParameter<typeof client>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteStatusStatusesStatusIdDelete>>, TError,{statusId: number}, TContext> => {
+
+const mutationKey = ['deleteStatusStatusesStatusIdDelete'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteStatusStatusesStatusIdDelete>>, {statusId: number}> = (props) => {
+          const {statusId} = props ?? {};
+
+          return  deleteStatusStatusesStatusIdDelete(statusId,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteStatusStatusesStatusIdDeleteMutationResult = NonNullable<Awaited<ReturnType<typeof deleteStatusStatusesStatusIdDelete>>>
+    
+    export type DeleteStatusStatusesStatusIdDeleteMutationError = HTTPValidationError
+
+    /**
+ * @summary Delete Status
+ */
+export const useDeleteStatusStatusesStatusIdDelete = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteStatusStatusesStatusIdDelete>>, TError,{statusId: number}, TContext>, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteStatusStatusesStatusIdDelete>>,
+        TError,
+        {statusId: number},
+        TContext
+      > => {
+      return useMutation(getDeleteStatusStatusesStatusIdDeleteMutationOptions(options), queryClient);
+    }
+    
+/**
+ * ステータス並び替え
+ * @summary Reorder Statuses
+ */
+export const getReorderStatusesStatusesReorderPutUrl = () => {
+
+
+  
+
+  return `/statuses/reorder`
+}
+
+export const reorderStatusesStatusesReorderPut = async (statusReorder: StatusReorder, options?: RequestInit): Promise<StatusListResponse> => {
+  
+  return client<StatusListResponse>(getReorderStatusesStatusesReorderPutUrl(),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      statusReorder,)
+  }
+);}
+
+
+
+
+export const getReorderStatusesStatusesReorderPutMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reorderStatusesStatusesReorderPut>>, TError,{data: StatusReorder}, TContext>, request?: SecondParameter<typeof client>}
+): UseMutationOptions<Awaited<ReturnType<typeof reorderStatusesStatusesReorderPut>>, TError,{data: StatusReorder}, TContext> => {
+
+const mutationKey = ['reorderStatusesStatusesReorderPut'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof reorderStatusesStatusesReorderPut>>, {data: StatusReorder}> = (props) => {
+          const {data} = props ?? {};
+
+          return  reorderStatusesStatusesReorderPut(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReorderStatusesStatusesReorderPutMutationResult = NonNullable<Awaited<ReturnType<typeof reorderStatusesStatusesReorderPut>>>
+    export type ReorderStatusesStatusesReorderPutMutationBody = StatusReorder
+    export type ReorderStatusesStatusesReorderPutMutationError = HTTPValidationError
+
+    /**
+ * @summary Reorder Statuses
+ */
+export const useReorderStatusesStatusesReorderPut = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reorderStatusesStatusesReorderPut>>, TError,{data: StatusReorder}, TContext>, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof reorderStatusesStatusesReorderPut>>,
+        TError,
+        {data: StatusReorder},
+        TContext
+      > => {
+      return useMutation(getReorderStatusesStatusesReorderPutMutationOptions(options), queryClient);
+    }
+    
 /**
  * タスク一覧取得（締切日でソート）
  * @summary List Tasks

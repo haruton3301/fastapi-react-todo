@@ -14,7 +14,10 @@ function RootLayout() {
             タスク管理
           </Link>
         </div>
-        <div className="flex-none">
+        <div className="flex-none flex gap-2">
+          <Link to="/statuses" className="btn btn-ghost btn-sm">
+            ステータス管理
+          </Link>
           <Link to="/tasks/new" className="btn btn-primary btn-sm">
             新規作成
           </Link>

@@ -53,6 +53,7 @@ function TaskEdit() {
           title: data.title,
           content: data.content,
           due_date: data.due_date,
+          status_id: data.status_id,
         }}
         onSubmit={(values) =>
           mutation.mutate({ taskId: Number(taskId), data: values })
