@@ -49,6 +49,9 @@ docker compose up -d --build
 
 # DBマイグレーション実行
 docker compose exec api alembic upgrade head
+
+# テスト実行
+docker compose exec api pytest tests/ -v
 ```
 
 API: http://localhost:8000
