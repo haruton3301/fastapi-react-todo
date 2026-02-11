@@ -8,6 +8,7 @@ class TaskBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=255)
     content: str
     due_date: date
+    status_id: int
 
 
 class TaskCreate(TaskBase):
