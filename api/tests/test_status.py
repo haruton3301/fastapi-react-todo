@@ -1,4 +1,7 @@
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
+from tests.utils import create_status_in_db, create_task_in_db
 
 NONEXISTENT_ID = 9999
 
@@ -8,17 +11,11 @@ STATUS_JSON = {
 }
 
 
-def _create_status(client: TestClient, **overrides) -> dict:
-    """ヘルパー: APIでステータスを作成してレスポンスを返す"""
-    data = {**STATUS_JSON, **overrides}
-    res = client.post("/statuses", json=data)
-    assert res.status_code == 201
-    return res.json()
-
-
 class TestCreateStatus:
     def test_create(self, client: TestClient):
-        body = _create_status(client)
+        res = client.post("/statuses", json=STATUS_JSON)
+        assert res.status_code == 201
+        body = res.json()
         assert body["name"] == STATUS_JSON["name"]
         assert body["color"] == STATUS_JSON["color"]
         assert body["order"] == 1
@@ -27,12 +24,12 @@ class TestCreateStatus:
         assert "updated_at" in body
 
     def test_auto_order(self, client: TestClient):
-        s1 = _create_status(client, name="A")
-        s2 = _create_status(client, name="B")
-        s3 = _create_status(client, name="C")
-        assert s1["order"] == 1
-        assert s2["order"] == 2
-        assert s3["order"] == 3
+        r1 = client.post("/statuses", json={**STATUS_JSON, "name": "A"})
+        r2 = client.post("/statuses", json={**STATUS_JSON, "name": "B"})
+        r3 = client.post("/statuses", json={**STATUS_JSON, "name": "C"})
+        assert r1.json()["order"] == 1
+        assert r2.json()["order"] == 2
+        assert r3.json()["order"] == 3
 
     def test_name_empty_returns_422(self, client: TestClient):
         res = client.post("/statuses", json={**STATUS_JSON, "name": ""})
@@ -49,17 +46,17 @@ class TestListStatuses:
         assert res.status_code == 200
         assert res.json()["statuses"] == []
 
-    def test_count(self, client: TestClient):
-        _create_status(client, name="ステータス1")
-        _create_status(client, name="ステータス2")
-        _create_status(client, name="ステータス3")
+    def test_count(self, client: TestClient, db: Session):
+        create_status_in_db(db, name="ステータス1", order=1)
+        create_status_in_db(db, name="ステータス2", order=2)
+        create_status_in_db(db, name="ステータス3", order=3)
 
         statuses = client.get("/statuses").json()["statuses"]
         assert len(statuses) == 3
 
-    def test_order(self, client: TestClient):
-        _create_status(client, name="先")
-        _create_status(client, name="後")
+    def test_order(self, client: TestClient, db: Session):
+        create_status_in_db(db, name="先", order=1)
+        create_status_in_db(db, name="後", order=2)
 
         statuses = client.get("/statuses").json()["statuses"]
         assert statuses[0]["name"] == "先"
@@ -67,11 +64,11 @@ class TestListStatuses:
 
 
 class TestGetStatus:
-    def test_get(self, client: TestClient):
-        created = _create_status(client)
-        res = client.get(f"/statuses/{created['id']}")
+    def test_get(self, client: TestClient, db: Session):
+        status = create_status_in_db(db)
+        res = client.get(f"/statuses/{status.id}")
         assert res.status_code == 200
-        assert res.json()["name"] == STATUS_JSON["name"]
+        assert res.json()["name"] == "テストステータス"
 
     def test_not_found(self, client: TestClient):
         res = client.get(f"/statuses/{NONEXISTENT_ID}")
@@ -79,13 +76,13 @@ class TestGetStatus:
 
 
 class TestUpdateStatus:
-    def test_update(self, client: TestClient):
-        created = _create_status(client)
+    def test_update(self, client: TestClient, db: Session):
+        status = create_status_in_db(db)
         update_data = {
             "name": "更新ステータス",
             "color": "#00FF00",
         }
-        res = client.put(f"/statuses/{created['id']}", json=update_data)
+        res = client.put(f"/statuses/{status.id}", json=update_data)
         assert res.status_code == 200
         body = res.json()
         assert body["name"] == "更新ステータス"
@@ -95,61 +92,55 @@ class TestUpdateStatus:
         res = client.put(f"/statuses/{NONEXISTENT_ID}", json=STATUS_JSON)
         assert res.status_code == 404
 
-    def test_name_empty_returns_422(self, client: TestClient):
-        created = _create_status(client)
+    def test_name_empty_returns_422(self, client: TestClient, db: Session):
+        status = create_status_in_db(db)
         res = client.put(
-            f"/statuses/{created['id']}", json={**STATUS_JSON, "name": ""}
+            f"/statuses/{status.id}", json={**STATUS_JSON, "name": ""}
         )
         assert res.status_code == 422
 
 
 class TestReorderStatuses:
-    def test_reorder(self, client: TestClient):
-        s1 = _create_status(client, name="A")
-        s2 = _create_status(client, name="B")
-        s3 = _create_status(client, name="C")
+    def test_reorder(self, client: TestClient, db: Session):
+        s1 = create_status_in_db(db, name="A", order=1)
+        s2 = create_status_in_db(db, name="B", order=2)
+        s3 = create_status_in_db(db, name="C", order=3)
 
-        res = client.put("/statuses/reorder", json={"order": [s3["id"], s1["id"], s2["id"]]})
+        res = client.put("/statuses/reorder", json={"order": [s3.id, s1.id, s2.id]})
         assert res.status_code == 200
         statuses = res.json()["statuses"]
         assert statuses[0]["name"] == "C"
         assert statuses[1]["name"] == "A"
         assert statuses[2]["name"] == "B"
 
-    def test_missing_ids_returns_400(self, client: TestClient):
-        s1 = _create_status(client, name="A")
-        _create_status(client, name="B")
+    def test_missing_ids_returns_400(self, client: TestClient, db: Session):
+        s1 = create_status_in_db(db, name="A", order=1)
+        create_status_in_db(db, name="B", order=2)
 
-        res = client.put("/statuses/reorder", json={"order": [s1["id"]]})
+        res = client.put("/statuses/reorder", json={"order": [s1.id]})
         assert res.status_code == 400
 
-    def test_extra_ids_returns_400(self, client: TestClient):
-        s1 = _create_status(client, name="A")
+    def test_extra_ids_returns_400(self, client: TestClient, db: Session):
+        s1 = create_status_in_db(db, name="A", order=1)
 
-        res = client.put("/statuses/reorder", json={"order": [s1["id"], NONEXISTENT_ID]})
+        res = client.put("/statuses/reorder", json={"order": [s1.id, NONEXISTENT_ID]})
         assert res.status_code == 400
 
 
 class TestDeleteStatus:
-    def test_delete(self, client: TestClient):
-        created = _create_status(client)
-        res = client.delete(f"/statuses/{created['id']}")
+    def test_delete(self, client: TestClient, db: Session):
+        status = create_status_in_db(db)
+        res = client.delete(f"/statuses/{status.id}")
         assert res.status_code == 204
 
-        res = client.get(f"/statuses/{created['id']}")
+        res = client.get(f"/statuses/{status.id}")
         assert res.status_code == 404
 
     def test_not_found(self, client: TestClient):
         res = client.delete(f"/statuses/{NONEXISTENT_ID}")
         assert res.status_code == 404
 
-    def test_delete_with_tasks_returns_409(self, client: TestClient):
-        status = _create_status(client)
-        client.post("/tasks", json={
-            "title": "タスク",
-            "content": "内容",
-            "due_date": "2025-12-31",
-            "status_id": status["id"],
-        })
-        res = client.delete(f"/statuses/{status['id']}")
+    def test_delete_with_tasks_returns_409(self, client: TestClient, db: Session):
+        task = create_task_in_db(db)
+        res = client.delete(f"/statuses/{task.status_id}")
         assert res.status_code == 409

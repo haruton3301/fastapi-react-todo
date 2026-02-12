@@ -2,7 +2,7 @@ import os
 
 import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 from fastapi.testclient import TestClient
 
 from app.database import Base, get_db
@@ -15,16 +15,19 @@ TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 @pytest.fixture()
-def client():
+def db():
+    """テスト用DBセッションを提供する。テーブル作成/破棄を管理"""
     Base.metadata.create_all(bind=engine)
     session = TestSessionLocal()
+    yield session
+    session.close()
+    Base.metadata.drop_all(bind=engine)
 
-    def _override_get_db():
-        yield session
 
-    app.dependency_overrides[get_db] = _override_get_db
+@pytest.fixture()
+def client(db: Session):
+    """テスト用HTTPクライアントを提供する。DI overrideでテスト用セッションを注入"""
+    app.dependency_overrides[get_db] = lambda: db
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
-    session.close()
-    Base.metadata.drop_all(bind=engine)
