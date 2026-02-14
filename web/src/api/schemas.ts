@@ -8,6 +8,44 @@
 import * as zod from 'zod';
 
 /**
+ * @summary Signup
+ */
+export const signupAuthSignupPostBodyUsernameMin = 3;
+export const signupAuthSignupPostBodyUsernameMax = 150;
+
+export const signupAuthSignupPostBodyPasswordMin = 8;
+
+
+
+export const SignupAuthSignupPostBody = zod.object({
+  "username": zod.string().min(signupAuthSignupPostBodyUsernameMin).max(signupAuthSignupPostBodyUsernameMax),
+  "email": zod.email(),
+  "password": zod.string().min(signupAuthSignupPostBodyPasswordMin)
+})
+
+
+/**
+ * @summary Login
+ */
+export const loginAuthLoginPostResponseTokenTypeDefault = `bearer`;
+
+export const LoginAuthLoginPostResponse = zod.object({
+  "access_token": zod.string(),
+  "token_type": zod.string().default(loginAuthLoginPostResponseTokenTypeDefault)
+})
+
+
+/**
+ * @summary Get Me
+ */
+export const GetMeAuthMeGetResponse = zod.object({
+  "id": zod.number(),
+  "username": zod.string(),
+  "email": zod.string()
+})
+
+
+/**
  * ステータス一覧取得（order順）
  * @summary List Statuses
  */

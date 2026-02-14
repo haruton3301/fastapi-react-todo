@@ -6,6 +6,8 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     database_url: str
     cors_origins: str
+    secret_key: str
+    access_token_expire_minutes: int = 30
 
     @property
     def cors_origins_list(self) -> list[str]:

@@ -4,11 +4,11 @@ import {
   useGetTaskTasksTaskIdGet,
   useUpdateTaskTasksTaskIdPut,
   getListTasksTasksGetQueryKey,
-} from "../api/generated";
-import { TaskForm } from "../components/task/TaskForm";
-import { myToast } from "../lib/toast";
+} from "../../api/generated";
+import { TaskForm } from "../../components/task/TaskForm";
+import { myToast } from "../../lib/toast";
 
-export const Route = createFileRoute("/tasks/$taskId/edit")({
+export const Route = createFileRoute("/_protected/tasks/$taskId/edit")({
   component: TaskEdit,
 });
 

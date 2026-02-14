@@ -8,11 +8,11 @@ import {
   getListTasksTasksGetQueryKey,
   type SortOrder,
   type StatusResponse,
-} from "../api/generated";
-import { TaskList } from "../components/task/TaskList";
-import { myToast } from "../lib/toast";
+} from "../../api/generated";
+import { TaskList } from "../../components/task/TaskList";
+import { myToast } from "../../lib/toast";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_protected/")({
   component: Index,
 });
 

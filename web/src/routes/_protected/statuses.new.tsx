@@ -3,11 +3,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   useCreateStatusStatusesPost,
   getListStatusesStatusesGetQueryKey,
-} from "../api/generated";
-import { StatusForm } from "../components/status/StatusForm";
-import { myToast } from "../lib/toast";
+} from "../../api/generated";
+import { StatusForm } from "../../components/status/StatusForm";
+import { myToast } from "../../lib/toast";
 
-export const Route = createFileRoute("/statuses/new")({
+export const Route = createFileRoute("/_protected/statuses/new")({
   component: StatusNew,
 });
 

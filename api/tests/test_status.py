@@ -140,7 +140,7 @@ class TestDeleteStatus:
         res = client.delete(f"/statuses/{NONEXISTENT_ID}")
         assert res.status_code == 404
 
-    def test_delete_with_tasks_returns_409(self, client: TestClient, db: Session):
-        task = create_task_in_db(db)
+    def test_delete_with_tasks_returns_409(self, client: TestClient, db: Session, test_user):
+        task = create_task_in_db(db, user_id=test_user.id)
         res = client.delete(f"/statuses/{task.status_id}")
         assert res.status_code == 409

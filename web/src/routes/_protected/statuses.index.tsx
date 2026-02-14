@@ -5,11 +5,11 @@ import {
   useDeleteStatusStatusesStatusIdDelete,
   useReorderStatusesStatusesReorderPut,
   getListStatusesStatusesGetQueryKey,
-} from "../api/generated";
-import { StatusList } from "../components/status/StatusList";
-import { myToast } from "../lib/toast";
+} from "../../api/generated";
+import { StatusList } from "../../components/status/StatusList";
+import { myToast } from "../../lib/toast";
 
-export const Route = createFileRoute("/statuses/")({
+export const Route = createFileRoute("/_protected/statuses/")({
   component: StatusIndex,
 });
 

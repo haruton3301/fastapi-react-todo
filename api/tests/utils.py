@@ -24,6 +24,7 @@ def create_status_in_db(
 def create_task_in_db(
     db: Session,
     *,
+    user_id: int,
     title: str = "テストタスク",
     content: str = "テスト内容",
     due_date: date = date(2025, 12, 31),
@@ -33,7 +34,7 @@ def create_task_in_db(
     if status_id is None:
         status = create_status_in_db(db)
         status_id = status.id
-    task = Task(title=title, content=content, due_date=due_date, status_id=status_id)
+    task = Task(title=title, content=content, due_date=due_date, status_id=status_id, user_id=user_id)
     db.add(task)
     db.commit()
     db.refresh(task)

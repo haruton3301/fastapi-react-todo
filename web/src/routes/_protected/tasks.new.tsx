@@ -3,11 +3,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   useCreateTaskTasksPost,
   getListTasksTasksGetQueryKey,
-} from "../api/generated";
-import { TaskForm } from "../components/task/TaskForm";
-import { myToast } from "../lib/toast";
+} from "../../api/generated";
+import { TaskForm } from "../../components/task/TaskForm";
+import { myToast } from "../../lib/toast";
 
-export const Route = createFileRoute("/tasks/new")({
+export const Route = createFileRoute("/_protected/tasks/new")({
   component: TaskNew,
 });
 

@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.routers import auth as auth_router
 from app.routers import status as status_router
 from app.routers import task as task_router
 
@@ -21,5 +22,6 @@ app.add_middleware(
 )
 
 # ルーター登録
+app.include_router(auth_router.router)
 app.include_router(status_router.router)
 app.include_router(task_router.router)

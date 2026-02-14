@@ -12,3 +12,4 @@ class Task(TimestampMixin, Base):
     content = Column(Text, nullable=False)
     due_date = Column(Date, nullable=False, index=True)
     status_id = Column(Integer, ForeignKey("statuses.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)

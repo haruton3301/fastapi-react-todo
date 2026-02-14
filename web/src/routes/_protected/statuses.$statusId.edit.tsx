@@ -4,11 +4,11 @@ import {
   useGetStatusStatusesStatusIdGet,
   useUpdateStatusStatusesStatusIdPut,
   getListStatusesStatusesGetQueryKey,
-} from "../api/generated";
-import { StatusForm } from "../components/status/StatusForm";
-import { myToast } from "../lib/toast";
+} from "../../api/generated";
+import { StatusForm } from "../../components/status/StatusForm";
+import { myToast } from "../../lib/toast";
 
-export const Route = createFileRoute("/statuses/$statusId/edit")({
+export const Route = createFileRoute("/_protected/statuses/$statusId/edit")({
   component: StatusEdit,
 });
 
