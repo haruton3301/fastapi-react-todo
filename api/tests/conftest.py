@@ -52,5 +52,5 @@ def test_user(db: Session) -> User:
 @pytest.fixture()
 def auth_headers(test_user: User) -> dict[str, str]:
     """認証済みヘッダーを提供"""
-    token = create_access_token(data={"sub": test_user.username})
+    token = create_access_token(data={"sub": str(test_user.id)})
     return {"Authorization": f"Bearer {token}"}

@@ -14,6 +14,7 @@ export const Route = createFileRoute("/_protected")({
       await queryClient.ensureQueryData({
         queryKey: getGetMeAuthMeGetQueryKey(),
         queryFn: () => getMeAuthMeGet(),
+        staleTime: 1000 * 60 * 5,
       });
     } catch {
       removeToken();
