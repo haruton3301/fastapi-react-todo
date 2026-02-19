@@ -1,5 +1,21 @@
+import { useEffect, useState } from "react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import type { StatusResponse } from "../../api/generated";
-import { StatusItem } from "./StatusItem";
+import { SortableStatusItem } from "./StatusItem";
 
 type Props = {
   statuses: StatusResponse[];
@@ -8,7 +24,20 @@ type Props = {
 };
 
 export function StatusList({ statuses, onDelete, onReorder }: Props) {
-  if (statuses.length === 0) {
+  const [items, setItems] = useState(statuses);
+
+  useEffect(() => {
+    setItems(statuses);
+  }, [statuses]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  if (items.length === 0) {
     return (
       <div className="text-center py-12 text-base-content/50">
         ステータスがありません。新規作成してください。
@@ -16,45 +45,49 @@ export function StatusList({ statuses, onDelete, onReorder }: Props) {
     );
   }
 
-  const handleMoveUp = (index: number) => {
-    const ids = statuses.map((s) => s.id);
-    [ids[index - 1], ids[index]] = [ids[index], ids[index - 1]];
-    onReorder(ids);
-  };
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-  const handleMoveDown = (index: number) => {
-    const ids = statuses.map((s) => s.id);
-    [ids[index], ids[index + 1]] = [ids[index + 1], ids[index]];
-    onReorder(ids);
+    const oldIndex = items.findIndex((s) => s.id === active.id);
+    const newIndex = items.findIndex((s) => s.id === over.id);
+    const newItems = arrayMove(items, oldIndex, newIndex);
+    setItems(newItems);
+    onReorder(newItems.map((s) => s.id));
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="table">
-        <thead>
-          <tr>
-            <th>名前</th>
-            <th>カラー</th>
-            <th>順序</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {statuses.map((status, index) => (
-            <StatusItem
-              key={status.id}
-              status={status}
-              onDelete={onDelete}
-              onMoveUp={index > 0 ? () => handleMoveUp(index) : undefined}
-              onMoveDown={
-                index < statuses.length - 1
-                  ? () => handleMoveDown(index)
-                  : undefined
-              }
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext
+        items={items.map((s) => s.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="overflow-x-auto">
+          <table className="table">
+            <thead>
+              <tr>
+                <th className="w-8" />
+                <th>名前</th>
+                <th>カラー</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((status) => (
+                <SortableStatusItem
+                  key={status.id}
+                  status={status}
+                  onDelete={onDelete}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 }

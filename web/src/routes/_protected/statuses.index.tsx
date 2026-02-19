@@ -39,13 +39,13 @@ function StatusIndex() {
 
   const reorderMutation = useReorderStatusesStatusesReorderPut({
     mutation: {
-      onSuccess: () => {
+      onError: () => {
+        myToast.error("並び替えに失敗しました");
+      },
+      onSettled: () => {
         queryClient.invalidateQueries({
           queryKey: getListStatusesStatusesGetQueryKey(),
         });
-      },
-      onError: () => {
-        myToast.error("並び替えに失敗しました");
       },
     },
   });
