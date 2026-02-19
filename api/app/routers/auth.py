@@ -1,8 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from app.auth import create_access_token, get_current_user, verify_password
+from app.auth import (
+    clear_refresh_cookie,
+    create_access_token,
+    create_refresh_token,
+    get_current_user,
+    set_refresh_cookie,
+    verify_password,
+    verify_refresh_token,
+)
 from app.crud import auth as auth_crud
 from app.crud.auth import DuplicateUserError
 from app.database import get_db
@@ -25,6 +33,7 @@ def signup(user_data: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(
+    response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
@@ -36,7 +45,31 @@ def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(data={"sub": str(user.id)})
+    refresh_token = create_refresh_token(user.id)
+    set_refresh_cookie(response, refresh_token)
     return Token(access_token=access_token)
+
+
+@router.post("/refresh", response_model=Token)
+def refresh(
+    response: Response,
+    refresh_token: str | None = Cookie(default=None),
+):
+    if refresh_token is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token missing",
+        )
+    user_id = verify_refresh_token(refresh_token)
+    new_access_token = create_access_token(data={"sub": str(user_id)})
+    new_refresh_token = create_refresh_token(user_id)
+    set_refresh_cookie(response, new_refresh_token)
+    return Token(access_token=new_access_token)
+
+
+@router.post("/logout", status_code=204)
+def logout(response: Response):
+    clear_refresh_cookie(response)
 
 
 @router.get("/me", response_model=UserResponse)

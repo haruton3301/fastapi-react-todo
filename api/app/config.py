@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     cors_origins: str
     secret_key: str
     access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 7
+    cookie_secure: bool = False
 
     @property
     def cors_origins_list(self) -> list[str]:

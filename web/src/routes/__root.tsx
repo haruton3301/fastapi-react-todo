@@ -5,7 +5,7 @@ import {
   Outlet,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { isLoggedIn, removeToken } from "../lib/auth";
+import { isLoggedIn, logout } from "../lib/auth";
 import { useGetMeAuthMeGet } from "../api/generated";
 
 export interface RouterContext {
@@ -21,8 +21,7 @@ function RootLayout() {
   const { data: me } = useGetMeAuthMeGet({ query: { enabled: loggedIn } });
 
   const handleLogout = () => {
-    removeToken();
-    window.location.href = "/login";
+    logout();
   };
 
   return (

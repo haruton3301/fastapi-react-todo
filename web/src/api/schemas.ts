@@ -36,6 +36,17 @@ export const LoginAuthLoginPostResponse = zod.object({
 
 
 /**
+ * @summary Refresh
+ */
+export const refreshAuthRefreshPostResponseTokenTypeDefault = `bearer`;
+
+export const RefreshAuthRefreshPostResponse = zod.object({
+  "access_token": zod.string(),
+  "token_type": zod.string().default(refreshAuthRefreshPostResponseTokenTypeDefault)
+})
+
+
+/**
  * @summary Get Me
  */
 export const GetMeAuthMeGetResponse = zod.object({

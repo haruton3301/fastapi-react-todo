@@ -1,6 +1,11 @@
+from datetime import datetime, timedelta, timezone
+
+import jwt
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from app.auth import ALGORITHM, create_refresh_token
+from app.config import settings
 from app.models.user import User
 
 
@@ -58,6 +63,14 @@ class TestLogin:
         assert "access_token" in body
         assert body["token_type"] == "bearer"
 
+    def test_login_sets_refresh_cookie(self, client: TestClient, test_user: User):
+        res = client.post("/auth/login", data={
+            "username": "test@example.com",
+            "password": "testpassword",
+        })
+        assert res.status_code == 200
+        assert "refresh_token" in res.cookies
+
     def test_wrong_password(self, client: TestClient, test_user: User):
         res = client.post("/auth/login", data={
             "username": "test@example.com",
@@ -84,3 +97,72 @@ class TestMe:
     def test_unauthenticated(self, client: TestClient):
         res = client.get("/auth/me")
         assert res.status_code == 401
+
+    def test_refresh_token_rejected_as_bearer(
+        self, client: TestClient, test_user: User
+    ):
+        """Refresh token を Bearer として使えないことを確認"""
+        refresh = create_refresh_token(test_user.id)
+        res = client.get("/auth/me", headers={"Authorization": f"Bearer {refresh}"})
+        assert res.status_code == 401
+
+
+class TestRefresh:
+    def test_refresh_success(self, client: TestClient, test_user: User):
+        refresh = create_refresh_token(test_user.id)
+        res = client.post("/auth/refresh", cookies={"refresh_token": refresh})
+        assert res.status_code == 200
+        body = res.json()
+        assert "access_token" in body
+        assert body["token_type"] == "bearer"
+        # 新しい refresh cookie がセットされること
+        assert "refresh_token" in res.cookies
+
+    def test_refresh_no_cookie(self, client: TestClient):
+        res = client.post("/auth/refresh")
+        assert res.status_code == 401
+
+    def test_refresh_expired_token(self, client: TestClient, test_user: User):
+        expired_payload = {
+            "sub": str(test_user.id),
+            "type": "refresh",
+            "exp": datetime.now(timezone.utc) - timedelta(seconds=1),
+        }
+        expired_token = jwt.encode(
+            expired_payload, settings.secret_key, algorithm=ALGORITHM
+        )
+        res = client.post(
+            "/auth/refresh", cookies={"refresh_token": expired_token}
+        )
+        assert res.status_code == 401
+
+    def test_refresh_with_access_token_rejected(
+        self, client: TestClient, test_user: User, auth_headers: dict
+    ):
+        """Access token を refresh に使えないことを確認"""
+        access_token = auth_headers["Authorization"].split(" ")[1]
+        res = client.post(
+            "/auth/refresh", cookies={"refresh_token": access_token}
+        )
+        assert res.status_code == 401
+
+
+class TestLogout:
+    def test_logout(self, client: TestClient, test_user: User):
+        # まずログインして cookie を取得
+        login_res = client.post("/auth/login", data={
+            "username": "test@example.com",
+            "password": "testpassword",
+        })
+        assert "refresh_token" in login_res.cookies
+
+        res = client.post("/auth/logout")
+        assert res.status_code == 204
+        # Cookie 削除の Set-Cookie ヘッダーが含まれること
+        set_cookie = res.headers.get("set-cookie", "")
+        assert "refresh_token" in set_cookie
+
+    def test_logout_without_cookie(self, client: TestClient):
+        """Cookie がなくても 204 を返す"""
+        res = client.post("/auth/logout")
+        assert res.status_code == 204

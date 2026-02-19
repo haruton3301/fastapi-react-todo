@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { isLoggedIn, removeToken } from "../lib/auth";
+import { isLoggedIn } from "../lib/auth";
 import {
   getMeAuthMeGet,
   getGetMeAuthMeGetQueryKey,
@@ -17,7 +17,6 @@ export const Route = createFileRoute("/_protected")({
         staleTime: 1000 * 60 * 5,
       });
     } catch {
-      removeToken();
       throw redirect({ to: "/login" });
     }
   },
