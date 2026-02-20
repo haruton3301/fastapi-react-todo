@@ -9,12 +9,12 @@ from app.models.task import Task
 def create_status_in_db(
     db: Session,
     *,
+    user_id: int,
     name: str = "テストステータス",
     color: str = "#6B7280",
     order: int = 1,
 ) -> Status:
-    """DBに直接ステータスを作成する"""
-    status = Status(name=name, color=color, order=order)
+    status = Status(name=name, color=color, order=order, user_id=user_id)
     db.add(status)
     db.commit()
     db.refresh(status)
@@ -30,9 +30,8 @@ def create_task_in_db(
     due_date: date = date(2025, 12, 31),
     status_id: int | None = None,
 ) -> Task:
-    """DBに直接タスクを作成する"""
     if status_id is None:
-        status = create_status_in_db(db)
+        status = create_status_in_db(db, user_id=user_id)
         status_id = status.id
     task = Task(title=title, content=content, due_date=due_date, status_id=status_id, user_id=user_id)
     db.add(task)

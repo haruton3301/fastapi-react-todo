@@ -2,6 +2,8 @@ from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
+from psycopg2 import errors as psycopg2_errors
+
 from app.auth import (
     ACCESS_TOKEN_EXPIRES,
     REFRESH_TOKEN_EXPIRES,
@@ -12,8 +14,6 @@ from app.auth import (
     verify_password,
     verify_token,
 )
-from psycopg2 import errors as psycopg2_errors
-
 from app.crud import user as user_crud
 from app.database import get_db
 from app.models.user import User

@@ -1,4 +1,4 @@
-from sqlalchemy import asc, func
+from sqlalchemy import asc, func, select
 from sqlalchemy.orm import Session
 
 from app.models.status import Status
@@ -6,20 +6,31 @@ from app.models.task import Task
 from app.schemas.status import StatusCreate, StatusUpdate
 
 
-def get_statuses(db: Session) -> list[Status]:
-    """ステータス一覧取得（order昇順）"""
-    return db.query(Status).order_by(asc(Status.order)).all()
+def get_statuses(db: Session, user_id: int) -> list[Status]:
+    return (
+        db.scalars(
+            select(Status)
+            .where(Status.user_id == user_id)
+            .order_by(asc(Status.order))
+        )
+        .all()
+    )
 
 
-def get_status(db: Session, status_id: int) -> Status | None:
-    """ステータス詳細取得"""
-    return db.query(Status).filter(Status.id == status_id).first()
+def get_status(db: Session, status_id: int, user_id: int) -> Status | None:
+    return db.scalars(
+        select(Status).where(Status.id == status_id, Status.user_id == user_id)
+    ).first()
 
 
-def create_status(db: Session, status_data: StatusCreate) -> Status:
-    """ステータス作成（orderは自動採番）"""
-    max_order = db.query(func.max(Status.order)).scalar() or 0
-    status = Status(**status_data.model_dump(), order=max_order + 1)
+def create_status(db: Session, status_data: StatusCreate, user_id: int) -> Status:
+    max_order = (
+        db.scalar(
+            select(func.max(Status.order)).where(Status.user_id == user_id)
+        )
+        or 0
+    )
+    status = Status(**status_data.model_dump(), order=max_order + 1, user_id=user_id)
     db.add(status)
     db.commit()
     db.refresh(status)
@@ -27,29 +38,31 @@ def create_status(db: Session, status_data: StatusCreate) -> Status:
 
 
 def update_status(db: Session, status: Status, status_data: StatusUpdate) -> Status:
-    """ステータス更新"""
     for key, value in status_data.model_dump().items():
         setattr(status, key, value)
-
     db.commit()
     db.refresh(status)
     return status
 
 
-def reorder_statuses(db: Session, status_ids: list[int]) -> list[Status]:
-    """ステータス並び替え（IDリスト順にorderを振り直す）"""
+def reorder_statuses(db: Session, status_ids: list[int], user_id: int) -> list[Status]:
     for new_order, status_id in enumerate(status_ids, start=1):
-        db.query(Status).filter(Status.id == status_id).update({"order": new_order})
+        status = db.scalars(
+            select(Status).where(Status.id == status_id, Status.user_id == user_id)
+        ).first()
+        if status:
+            status.order = new_order
     db.commit()
-    return get_statuses(db)
+    return get_statuses(db, user_id)
 
 
 def has_tasks_with_status(db: Session, status_id: int) -> bool:
-    """指定ステータスに紐付くタスクが存在するか"""
-    return db.query(Task).filter(Task.status_id == status_id).first() is not None
+    return (
+        db.scalars(select(Task).where(Task.status_id == status_id)).first()
+        is not None
+    )
 
 
 def delete_status(db: Session, status: Status) -> None:
-    """ステータス削除"""
     db.delete(status)
     db.commit()
