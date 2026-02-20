@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from fastapi.testclient import TestClient
 
-from app.auth import get_password_hash, create_access_token
+from app.auth import ACCESS_TOKEN_EXPIRES, get_password_hash, create_token
 from app.database import Base, get_db
 from app.main import app
 from app.models.user import User
@@ -52,5 +52,5 @@ def test_user(db: Session) -> User:
 @pytest.fixture()
 def auth_headers(test_user: User) -> dict[str, str]:
     """認証済みヘッダーを提供"""
-    token = create_access_token(data={"sub": str(test_user.id)})
+    token = create_token(test_user.id, "access", ACCESS_TOKEN_EXPIRES)
     return {"Authorization": f"Bearer {token}"}

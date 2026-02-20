@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -6,12 +7,8 @@ from app.models.user import User
 from app.schemas.auth import UserCreate
 
 
-class DuplicateUserError(Exception):
-    pass
-
-
 def get_user_by_email(db: Session, email: str) -> User | None:
-    return db.query(User).filter(User.email == email).first()
+    return db.scalars(select(User).where(User.email == email)).first()
 
 
 def create_user(db: Session, user_data: UserCreate) -> User:
@@ -23,8 +20,8 @@ def create_user(db: Session, user_data: UserCreate) -> User:
     db.add(user)
     try:
         db.commit()
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
-        raise DuplicateUserError()
+        raise e.orig
     db.refresh(user)
     return user

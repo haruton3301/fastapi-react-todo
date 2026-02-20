@@ -4,7 +4,7 @@ import jwt
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from app.auth import ALGORITHM, create_refresh_token
+from app.auth import ALGORITHM, REFRESH_TOKEN_EXPIRES, create_token
 from app.config import settings
 from app.models.user import User
 
@@ -102,14 +102,14 @@ class TestMe:
         self, client: TestClient, test_user: User
     ):
         """Refresh token を Bearer として使えないことを確認"""
-        refresh = create_refresh_token(test_user.id)
+        refresh = create_token(test_user.id, "refresh", REFRESH_TOKEN_EXPIRES)
         res = client.get("/auth/me", headers={"Authorization": f"Bearer {refresh}"})
         assert res.status_code == 401
 
 
 class TestRefresh:
     def test_refresh_success(self, client: TestClient, test_user: User):
-        refresh = create_refresh_token(test_user.id)
+        refresh = create_token(test_user.id, "refresh", REFRESH_TOKEN_EXPIRES)
         res = client.post("/auth/refresh", cookies={"refresh_token": refresh})
         assert res.status_code == 200
         body = res.json()
