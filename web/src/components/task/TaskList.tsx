@@ -19,30 +19,20 @@ export function TaskList({ tasks, statusMap, order, onToggleOrder, onDelete }: P
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="table">
-        <thead>
-          <tr>
-            <th>タイトル</th>
-            <th>内容</th>
-            <th>ステータス</th>
-            <th>
-              <button
-                className="btn btn-ghost btn-xs gap-1"
-                onClick={onToggleOrder}
-              >
-                締切日 {order === "desc" ? "↓" : "↑"}
-              </button>
-            </th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map((task) => (
-            <TaskItem key={task.id} task={task} status={statusMap.get(task.status_id)} onDelete={onDelete} />
-          ))}
-        </tbody>
-      </table>
+    <div>
+      <div className="flex justify-end mb-2">
+        <button
+          className="btn btn-ghost btn-xs gap-1"
+          onClick={onToggleOrder}
+        >
+          締切日 {order === "desc" ? "↓" : "↑"}
+        </button>
+      </div>
+      <div className="divide-y divide-base-300">
+        {tasks.map((task) => (
+          <TaskItem key={task.id} task={task} status={statusMap.get(task.status_id)} onDelete={onDelete} />
+        ))}
+      </div>
     </div>
   );
 }
