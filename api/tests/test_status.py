@@ -1,10 +1,7 @@
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
 
 from app.models.status import Status
 from app.models.task import Task
-from app.models.user import User
-from tests.utils import create_status_in_db
 
 NONEXISTENT_ID = 9999
 
@@ -53,21 +50,16 @@ class TestListStatuses:
         assert res.status_code == 200
         assert res.json()["statuses"] == []
 
-    def test_count(self, client: TestClient, db: Session, test_user: User, auth_headers: dict):
-        create_status_in_db(db, user_id=test_user.id, name="ステータス1", order=1)
-        create_status_in_db(db, user_id=test_user.id, name="ステータス2", order=2)
-        create_status_in_db(db, user_id=test_user.id, name="ステータス3", order=3)
-
+    def test_count(self, client: TestClient, test_statuses: list[Status], auth_headers: dict):
+        # test_statuses: 未着手, 進行中, 完了
         statuses = client.get("/statuses", headers=auth_headers).json()["statuses"]
         assert len(statuses) == 3
 
-    def test_order(self, client: TestClient, db: Session, test_user: User, auth_headers: dict):
-        create_status_in_db(db, user_id=test_user.id, name="先", order=1)
-        create_status_in_db(db, user_id=test_user.id, name="後", order=2)
-
+    def test_order(self, client: TestClient, test_statuses: list[Status], auth_headers: dict):
+        # test_statuses: 未着手(order=1), 進行中(order=2), 完了(order=3)
         statuses = client.get("/statuses", headers=auth_headers).json()["statuses"]
-        assert statuses[0]["name"] == "先"
-        assert statuses[1]["name"] == "後"
+        assert statuses[0]["name"] == "未着手"
+        assert statuses[1]["name"] == "進行中"
 
 
 class TestGetStatus:
@@ -105,22 +97,18 @@ class TestUpdateStatus:
 
 
 class TestReorderStatuses:
-    def test_reorder(self, client: TestClient, db: Session, test_user: User, auth_headers: dict):
-        s1 = create_status_in_db(db, user_id=test_user.id, name="A", order=1)
-        s2 = create_status_in_db(db, user_id=test_user.id, name="B", order=2)
-        s3 = create_status_in_db(db, user_id=test_user.id, name="C", order=3)
-
+    def test_reorder(self, client: TestClient, test_statuses: list[Status], auth_headers: dict):
+        # test_statuses: 未着手(s1), 進行中(s2), 完了(s3)
+        s1, s2, s3 = test_statuses
         res = client.put("/statuses/reorder", json={"order": [s3.id, s1.id, s2.id]}, headers=auth_headers)
         assert res.status_code == 200
         statuses = res.json()["statuses"]
-        assert statuses[0]["name"] == "C"
-        assert statuses[1]["name"] == "A"
-        assert statuses[2]["name"] == "B"
+        assert statuses[0]["name"] == "完了"
+        assert statuses[1]["name"] == "未着手"
+        assert statuses[2]["name"] == "進行中"
 
-    def test_missing_ids_returns_400(self, client: TestClient, db: Session, test_user: User, auth_headers: dict):
-        s1 = create_status_in_db(db, user_id=test_user.id, name="A", order=1)
-        create_status_in_db(db, user_id=test_user.id, name="B", order=2)
-
+    def test_missing_ids_returns_400(self, client: TestClient, test_statuses: list[Status], auth_headers: dict):
+        s1, s2, s3 = test_statuses
         res = client.put("/statuses/reorder", json={"order": [s1.id]}, headers=auth_headers)
         assert res.status_code == 400
 
