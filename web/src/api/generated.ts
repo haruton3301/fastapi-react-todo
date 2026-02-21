@@ -600,7 +600,6 @@ export function useGetMeAuthMeGet<TData = Awaited<ReturnType<typeof getMeAuthMeG
 
 
 /**
- * ステータス一覧取得（order順）
  * @summary List Statuses
  */
 export const getListStatusesStatusesGetUrl = () => {
@@ -700,7 +699,6 @@ export function useListStatusesStatusesGet<TData = Awaited<ReturnType<typeof lis
 
 
 /**
- * ステータス作成
  * @summary Create Status
  */
 export const getCreateStatusStatusesPostUrl = () => {
@@ -772,7 +770,6 @@ export const useCreateStatusStatusesPost = <TError = HTTPValidationError,
     }
     
 /**
- * ステータス詳細取得
  * @summary Get Status
  */
 export const getGetStatusStatusesStatusIdGetUrl = (statusId: number,) => {
@@ -872,7 +869,6 @@ export function useGetStatusStatusesStatusIdGet<TData = Awaited<ReturnType<typeo
 
 
 /**
- * ステータス更新
  * @summary Update Status
  */
 export const getUpdateStatusStatusesStatusIdPutUrl = (statusId: number,) => {
@@ -945,7 +941,6 @@ export const useUpdateStatusStatusesStatusIdPut = <TError = HTTPValidationError,
     }
     
 /**
- * ステータス削除
  * @summary Delete Status
  */
 export const getDeleteStatusStatusesStatusIdDeleteUrl = (statusId: number,) => {
@@ -1016,7 +1011,6 @@ export const useDeleteStatusStatusesStatusIdDelete = <TError = HTTPValidationErr
     }
     
 /**
- * ステータス並び替え
  * @summary Reorder Statuses
  */
 export const getReorderStatusesStatusesReorderPutUrl = () => {

@@ -57,7 +57,6 @@ export const GetMeAuthMeGetResponse = zod.object({
 
 
 /**
- * ステータス一覧取得（order順）
  * @summary List Statuses
  */
 export const listStatusesStatusesGetResponseStatusesItemNameMax = 50;
@@ -79,7 +78,6 @@ export const ListStatusesStatusesGetResponse = zod.object({
 
 
 /**
- * ステータス作成
  * @summary Create Status
  */
 export const createStatusStatusesPostBodyNameMax = 50;
@@ -95,7 +93,6 @@ export const CreateStatusStatusesPostBody = zod.object({
 
 
 /**
- * ステータス詳細取得
  * @summary Get Status
  */
 export const GetStatusStatusesStatusIdGetParams = zod.object({
@@ -119,7 +116,6 @@ export const GetStatusStatusesStatusIdGetResponse = zod.object({
 
 
 /**
- * ステータス更新
  * @summary Update Status
  */
 export const UpdateStatusStatusesStatusIdPutParams = zod.object({
@@ -154,7 +150,6 @@ export const UpdateStatusStatusesStatusIdPutResponse = zod.object({
 
 
 /**
- * ステータス削除
  * @summary Delete Status
  */
 export const DeleteStatusStatusesStatusIdDeleteParams = zod.object({
@@ -163,7 +158,6 @@ export const DeleteStatusStatusesStatusIdDeleteParams = zod.object({
 
 
 /**
- * ステータス並び替え
  * @summary Reorder Statuses
  */
 

@@ -5,20 +5,44 @@ import {
   Outlet,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { isLoggedIn, logout } from "../lib/auth";
-import { useGetMeAuthMeGet } from "../api/generated";
+import { logout, refreshAccessToken } from "../lib/auth";
+import { useAuthStore } from "../store/auth";
+import { getMeAuthMeGet } from "../api/generated";
+import { FaUserCircle } from "react-icons/fa";
 
 export interface RouterContext {
   queryClient: QueryClient;
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+  pendingComponent: () => (
+    <div className="min-h-screen flex items-center justify-center">
+      <span className="loading loading-spinner loading-lg" />
+    </div>
+  ),
+  beforeLoad: async () => {
+    if (!useAuthStore.getState().accessToken) {
+      try {
+        await refreshAccessToken();
+      } catch {
+        return;
+      }
+    }
+    if (!useAuthStore.getState().user) {
+      try {
+        const me = await getMeAuthMeGet();
+        useAuthStore.getState().setUser(me);
+      } catch {
+        useAuthStore.getState().clearAuth();
+      }
+    }
+  },
   component: RootLayout,
 });
 
 function RootLayout() {
-  const loggedIn = isLoggedIn();
-  const { data: me } = useGetMeAuthMeGet({ query: { enabled: loggedIn } });
+  const loggedIn = useAuthStore((s) => s.accessToken !== null);
+  const username = useAuthStore((s) => s.user?.username);
 
   const handleLogout = () => {
     logout();
@@ -35,16 +59,23 @@ function RootLayout() {
         <div className="flex-none flex gap-2 items-center">
           {loggedIn ? (
             <>
-              {me && <span className="text-sm mr-2">{me.username}</span>}
               <Link to="/statuses" className="btn btn-ghost btn-sm">
                 ステータス管理
               </Link>
               <Link to="/tasks/new" className="btn btn-primary btn-sm">
                 新規作成
               </Link>
-              <button onClick={handleLogout} className="btn btn-ghost btn-sm">
-                ログアウト
-              </button>
+              <div className="dropdown dropdown-end dropdown-hover">
+                <div tabIndex={0} role="button" className="btn btn-ghost btn-sm gap-1">
+                  <FaUserCircle className="text-lg" />
+                  {username}
+                </div>
+                <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box shadow-sm w-40 p-2">
+                  <li>
+                    <button onClick={handleLogout}>ログアウト</button>
+                  </li>
+                </ul>
+              </div>
             </>
           ) : (
             <>

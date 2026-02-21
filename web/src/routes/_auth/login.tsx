@@ -1,10 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-import { setToken } from "../../lib/auth";
 import { useLoginAuthLoginPost } from "../../api/generated";
+import { useAuthStore } from "../../store/auth";
 
 const loginSchema = z.object({
   email: z.email(),
@@ -18,6 +18,7 @@ export const Route = createFileRoute("/_auth/login")({
 });
 
 function Login() {
+  const {navigate} = useRouter();
   const [error, setError] = useState<string | null>(null);
   const {
     register,
@@ -29,9 +30,9 @@ function Login() {
 
   const loginMutation = useLoginAuthLoginPost({
     mutation: {
-      onSuccess: (data) => {
-        setToken(data.access_token);
-        window.location.href = "/";
+      onSuccess: async (data) => {
+        useAuthStore.getState().setAccessToken(data.access_token);
+        navigate({ to: "/" });
       },
       onError: () => {
         setError("メールアドレスまたはパスワードが正しくありません");

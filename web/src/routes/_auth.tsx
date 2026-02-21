@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { isLoggedIn } from "../lib/auth";
+import { useAuthStore } from "../store/auth";
 
 export const Route = createFileRoute("/_auth")({
   beforeLoad: () => {
-    if (isLoggedIn()) {
+    if (useAuthStore.getState().accessToken) {
       throw redirect({ to: "/" });
     }
   },

@@ -1,20 +1,40 @@
-const TOKEN_KEY = "access_token";
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+import { useAuthStore } from "../store/auth";
+import { BASE_URL } from "./config";
 
-export const getToken = (): string | null => localStorage.getItem(TOKEN_KEY);
+// refreshPromiseをシングルトン化
+let refreshPromise: Promise<string> | null = null;
 
-export const setToken = (token: string): void =>
-  localStorage.setItem(TOKEN_KEY, token);
+export function refreshAccessToken(): Promise<string> {
+  if (refreshPromise) return refreshPromise;
 
-export const removeToken = (): void => localStorage.removeItem(TOKEN_KEY);
+  refreshPromise = (async () => {
+    const res = await fetch(`${BASE_URL}/auth/refresh`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      throw new Error("Refresh failed");
+    }
+    const body = await res.json();
+    useAuthStore.getState().setAccessToken(body.access_token);
+    return body.access_token as string;
+  })();
 
-export const isLoggedIn = (): boolean => getToken() !== null;
+  refreshPromise.finally(() => {
+    refreshPromise = null;
+  });
+
+  return refreshPromise;
+}
 
 export const logout = async (): Promise<void> => {
-  await fetch(`${BASE_URL}/auth/logout`, {
-    method: "POST",
-    credentials: "include",
-  }).catch(() => {});
-  removeToken();
-  window.location.href = "/login";
+  try {
+    await fetch(`${BASE_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+  } finally {
+    useAuthStore.getState().clearAuth();
+    window.location.href = "/login";
+  }
 };
