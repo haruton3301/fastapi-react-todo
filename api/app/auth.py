@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Literal
+from enum import StrEnum
 
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -19,6 +19,11 @@ pwd_context = PasswordHash((BcryptHasher(),))
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 ALGORITHM = "HS256"
+
+
+class TokenType(StrEnum):
+    ACCESS = "access"
+    REFRESH = "refresh"
 ACCESS_TOKEN_EXPIRES = timedelta(minutes=settings.access_token_expire_minutes)
 REFRESH_TOKEN_EXPIRES = timedelta(days=settings.refresh_token_expire_days)
 
@@ -33,7 +38,7 @@ def get_password_hash(password: str) -> str:
 
 def create_token(
     user_id: int,
-    token_type: Literal["access", "refresh"],
+    token_type: TokenType,
     expires_delta: timedelta,
 ) -> str:
     expire = datetime.now(timezone.utc) + expires_delta
@@ -41,7 +46,7 @@ def create_token(
     return jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM)
 
 
-def verify_token(token: str, expected_type: Literal["access", "refresh"]) -> int:
+def verify_token(token: str, expected_type: TokenType) -> int:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid token",
@@ -83,7 +88,7 @@ def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> User:
-    user_id = verify_token(token, "access")
+    user_id = verify_token(token, TokenType.ACCESS)
     user = db.scalars(select(User).where(User.id == user_id)).first()
     if user is None:
         raise HTTPException(

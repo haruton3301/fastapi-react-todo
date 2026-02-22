@@ -7,6 +7,7 @@ from psycopg2 import errors as psycopg2_errors
 from app.auth import (
     ACCESS_TOKEN_EXPIRES,
     REFRESH_TOKEN_EXPIRES,
+    TokenType,
     clear_refresh_cookie,
     create_token,
     get_current_user,
@@ -46,8 +47,8 @@ def login(
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token = create_token(user.id, "access", ACCESS_TOKEN_EXPIRES)
-    refresh_token = create_token(user.id, "refresh", REFRESH_TOKEN_EXPIRES)
+    access_token = create_token(user.id, TokenType.ACCESS, ACCESS_TOKEN_EXPIRES)
+    refresh_token = create_token(user.id, TokenType.REFRESH, REFRESH_TOKEN_EXPIRES)
     set_refresh_cookie(response, refresh_token)
     return Token(access_token=access_token)
 
@@ -62,9 +63,9 @@ def refresh(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Refresh token missing",
         )
-    user_id = verify_token(refresh_token, "refresh")
-    new_access_token = create_token(user_id, "access", ACCESS_TOKEN_EXPIRES)
-    new_refresh_token = create_token(user_id, "refresh", REFRESH_TOKEN_EXPIRES)
+    user_id = verify_token(refresh_token, TokenType.REFRESH)
+    new_access_token = create_token(user_id, TokenType.ACCESS, ACCESS_TOKEN_EXPIRES)
+    new_refresh_token = create_token(user_id, TokenType.REFRESH, REFRESH_TOKEN_EXPIRES)
     set_refresh_cookie(response, new_refresh_token)
     return Token(access_token=new_access_token)
 
