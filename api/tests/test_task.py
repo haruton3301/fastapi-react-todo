@@ -33,6 +33,14 @@ class TestCreateTask:
         res = client.post("/tasks", json={}, headers=auth_headers)
         assert res.status_code == 422
 
+    def test_invalid_status_returns_404(self, client: TestClient, auth_headers: dict):
+        res = client.post("/tasks", json={**TASK_JSON, "status_id": NONEXISTENT_ID}, headers=auth_headers)
+        assert res.status_code == 404
+
+    def test_other_user_status_returns_404(self, client: TestClient, other_user_status: Status, auth_headers: dict):
+        res = client.post("/tasks", json={**TASK_JSON, "status_id": other_user_status.id}, headers=auth_headers)
+        assert res.status_code == 404
+
     def test_unauthenticated_returns_401(self, client: TestClient, test_status: Status):
         res = client.post("/tasks", json={**TASK_JSON, "status_id": test_status.id})
         assert res.status_code == 401
@@ -113,6 +121,22 @@ class TestUpdateTask:
         res = client.put(
             f"/tasks/{NONEXISTENT_ID}",
             json={**TASK_JSON, "status_id": test_status.id},
+            headers=auth_headers,
+        )
+        assert res.status_code == 404
+
+    def test_invalid_status_returns_404(self, client: TestClient, test_task: Task, auth_headers: dict):
+        res = client.put(
+            f"/tasks/{test_task.id}",
+            json={**TASK_JSON, "status_id": NONEXISTENT_ID},
+            headers=auth_headers,
+        )
+        assert res.status_code == 404
+
+    def test_other_user_status_returns_404(self, client: TestClient, test_task: Task, other_user_status: Status, auth_headers: dict):
+        res = client.put(
+            f"/tasks/{test_task.id}",
+            json={**TASK_JSON, "status_id": other_user_status.id},
             headers=auth_headers,
         )
         assert res.status_code == 404

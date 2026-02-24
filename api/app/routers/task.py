@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.auth import get_current_user
 from app.database import get_db
 from app.crud import task as task_crud
+from app.crud import status as status_crud
 from app.models.task import Task
 from app.models.user import User
 from app.schemas.common import SortOrder
@@ -51,6 +52,9 @@ def create_task(
     db: Session = Depends(get_db),
 ):
     """タスク作成"""
+    # 存在しないステータス、または他ユーザーのステータスへの紐付けを防ぐ
+    if status_crud.get_status(db, task_data.status_id, user_id=current_user.id) is None:
+        raise HTTPException(status_code=404, detail="Status not found")
     return task_crud.create_task(db, task_data, user_id=current_user.id)
 
 
@@ -58,9 +62,13 @@ def create_task(
 def update_task(
     task_data: TaskUpdate,
     task: Task = Depends(get_task_or_404),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """タスク更新"""
+    # 存在しないステータス、または他ユーザーのステータスへの紐付けを防ぐ
+    if status_crud.get_status(db, task_data.status_id, user_id=current_user.id) is None:
+        raise HTTPException(status_code=404, detail="Status not found")
     return task_crud.update_task(db, task, task_data)
 
 

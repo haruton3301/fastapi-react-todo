@@ -71,6 +71,13 @@ def test_statuses(db: Session, test_user: User) -> list[Status]:
 
 
 @pytest.fixture()
+def other_user_status(db: Session) -> Status:
+    """別ユーザーのステータスを作成"""
+    other_user = UserFactory()
+    return StatusFactory(user_id=other_user.id)
+
+
+@pytest.fixture()
 def test_task(db: Session, test_user: User, test_status: Status) -> Task:
     """テスト用タスクを作成"""
     return TaskFactory(title="テストタスク", user_id=test_user.id, status_id=test_status.id)
