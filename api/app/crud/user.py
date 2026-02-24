@@ -22,6 +22,13 @@ def update_username(db: Session, user: User, new_username: str) -> User:
     return user
 
 
+def update_password(db: Session, user: User, new_password: str) -> User:
+    user.hashed_password = get_password_hash(new_password)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
 def create_user(db: Session, user_data: UserCreate) -> User:
     user = User(
         username=user_data.username,

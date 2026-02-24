@@ -76,6 +76,29 @@ export const UpdateMeAuthMePutResponse = zod.object({
 
 
 /**
+ * @summary Request Password Reset
+ */
+export const RequestPasswordResetAuthPasswordResetRequestPostBody = zod.object({
+  "email": zod.email()
+})
+
+
+/**
+ * @summary Confirm Password Reset
+ */
+export const confirmPasswordResetAuthPasswordResetConfirmPostBodyNewPasswordMin = 8;
+
+
+
+export const ConfirmPasswordResetAuthPasswordResetConfirmPostBody = zod.object({
+  "token": zod.string(),
+  "new_password": zod.string().min(confirmPasswordResetAuthPasswordResetConfirmPostBodyNewPasswordMin)
+})
+
+export const ConfirmPasswordResetAuthPasswordResetConfirmPostResponse = zod.unknown()
+
+
+/**
  * @summary List Statuses
  */
 export const listStatusesStatusesGetResponseStatusesItemNameMax = 50;

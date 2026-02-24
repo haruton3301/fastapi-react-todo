@@ -48,6 +48,16 @@ export interface HTTPValidationError {
   detail?: ValidationError[];
 }
 
+export interface PasswordResetConfirm {
+  token: string;
+  /** @minLength 8 */
+  new_password: string;
+}
+
+export interface PasswordResetRequest {
+  email: string;
+}
+
 /**
  * ソート順
  */
@@ -676,6 +686,148 @@ export const useUpdateMeAuthMePut = <TError = HTTPValidationError,
         TContext
       > => {
       return useMutation(getUpdateMeAuthMePutMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Request Password Reset
+ */
+export const getRequestPasswordResetAuthPasswordResetRequestPostUrl = () => {
+
+
+  
+
+  return `/auth/password-reset/request`
+}
+
+export const requestPasswordResetAuthPasswordResetRequestPost = async (passwordResetRequest: PasswordResetRequest, options?: RequestInit): Promise<unknown> => {
+  
+  return client<unknown>(getRequestPasswordResetAuthPasswordResetRequestPostUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      passwordResetRequest,)
+  }
+);}
+
+
+
+
+export const getRequestPasswordResetAuthPasswordResetRequestPostMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestPasswordResetAuthPasswordResetRequestPost>>, TError,{data: PasswordResetRequest}, TContext>, request?: SecondParameter<typeof client>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestPasswordResetAuthPasswordResetRequestPost>>, TError,{data: PasswordResetRequest}, TContext> => {
+
+const mutationKey = ['requestPasswordResetAuthPasswordResetRequestPost'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestPasswordResetAuthPasswordResetRequestPost>>, {data: PasswordResetRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  requestPasswordResetAuthPasswordResetRequestPost(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RequestPasswordResetAuthPasswordResetRequestPostMutationResult = NonNullable<Awaited<ReturnType<typeof requestPasswordResetAuthPasswordResetRequestPost>>>
+    export type RequestPasswordResetAuthPasswordResetRequestPostMutationBody = PasswordResetRequest
+    export type RequestPasswordResetAuthPasswordResetRequestPostMutationError = HTTPValidationError
+
+    /**
+ * @summary Request Password Reset
+ */
+export const useRequestPasswordResetAuthPasswordResetRequestPost = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestPasswordResetAuthPasswordResetRequestPost>>, TError,{data: PasswordResetRequest}, TContext>, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof requestPasswordResetAuthPasswordResetRequestPost>>,
+        TError,
+        {data: PasswordResetRequest},
+        TContext
+      > => {
+      return useMutation(getRequestPasswordResetAuthPasswordResetRequestPostMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Confirm Password Reset
+ */
+export const getConfirmPasswordResetAuthPasswordResetConfirmPostUrl = () => {
+
+
+  
+
+  return `/auth/password-reset/confirm`
+}
+
+export const confirmPasswordResetAuthPasswordResetConfirmPost = async (passwordResetConfirm: PasswordResetConfirm, options?: RequestInit): Promise<unknown> => {
+  
+  return client<unknown>(getConfirmPasswordResetAuthPasswordResetConfirmPostUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      passwordResetConfirm,)
+  }
+);}
+
+
+
+
+export const getConfirmPasswordResetAuthPasswordResetConfirmPostMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof confirmPasswordResetAuthPasswordResetConfirmPost>>, TError,{data: PasswordResetConfirm}, TContext>, request?: SecondParameter<typeof client>}
+): UseMutationOptions<Awaited<ReturnType<typeof confirmPasswordResetAuthPasswordResetConfirmPost>>, TError,{data: PasswordResetConfirm}, TContext> => {
+
+const mutationKey = ['confirmPasswordResetAuthPasswordResetConfirmPost'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof confirmPasswordResetAuthPasswordResetConfirmPost>>, {data: PasswordResetConfirm}> = (props) => {
+          const {data} = props ?? {};
+
+          return  confirmPasswordResetAuthPasswordResetConfirmPost(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ConfirmPasswordResetAuthPasswordResetConfirmPostMutationResult = NonNullable<Awaited<ReturnType<typeof confirmPasswordResetAuthPasswordResetConfirmPost>>>
+    export type ConfirmPasswordResetAuthPasswordResetConfirmPostMutationBody = PasswordResetConfirm
+    export type ConfirmPasswordResetAuthPasswordResetConfirmPostMutationError = HTTPValidationError
+
+    /**
+ * @summary Confirm Password Reset
+ */
+export const useConfirmPasswordResetAuthPasswordResetConfirmPost = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof confirmPasswordResetAuthPasswordResetConfirmPost>>, TError,{data: PasswordResetConfirm}, TContext>, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof confirmPasswordResetAuthPasswordResetConfirmPost>>,
+        TError,
+        {data: PasswordResetConfirm},
+        TContext
+      > => {
+      return useMutation(getConfirmPasswordResetAuthPasswordResetConfirmPostMutationOptions(options), queryClient);
     }
     
 /**

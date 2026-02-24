@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from psycopg2 import errors as psycopg2_errors
@@ -9,7 +10,9 @@ from app.auth import (
     REFRESH_TOKEN_EXPIRES,
     TokenType,
     clear_refresh_cookie,
+    create_password_reset_token,
     create_token,
+    decode_password_reset_token,
     get_current_user,
     set_refresh_cookie,
     verify_password,
@@ -17,8 +20,16 @@ from app.auth import (
 )
 from app.crud import user as user_crud
 from app.database import get_db
+from app.email import send_password_reset_email
 from app.models.user import User
-from app.schemas.auth import Token, UserCreate, UserResponse, UsernameUpdate
+from app.schemas.auth import (
+    PasswordResetConfirm,
+    PasswordResetRequest,
+    Token,
+    UserCreate,
+    UserResponse,
+    UsernameUpdate,
+)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -90,3 +101,26 @@ def update_me(
         return user_crud.update_username(db, current_user, user_data.username)
     except psycopg2_errors.UniqueViolation:
         raise HTTPException(status_code=409, detail="Username already taken")
+
+
+@router.post("/password-reset/request", status_code=202)
+async def request_password_reset(
+    data: PasswordResetRequest, db: Session = Depends(get_db)
+):
+    user = user_crud.get_user_by_email(db, data.email)
+    if user:
+        token = create_password_reset_token(user)
+        await send_password_reset_email(user.email, token)
+    return Response(status_code=202)
+
+
+@router.post("/password-reset/confirm")
+def confirm_password_reset(
+    data: PasswordResetConfirm, db: Session = Depends(get_db)
+):
+    user_id, pwd_fingerprint = decode_password_reset_token(data.token)
+    user = db.scalars(select(User).where(User.id == user_id)).first()
+    if not user or user.hashed_password[:8] != pwd_fingerprint:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    user_crud.update_password(db, user, data.new_password)
+    return {"message": "Password reset successful"}

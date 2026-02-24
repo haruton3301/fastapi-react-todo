@@ -79,6 +79,11 @@ function Login() {
           {errors.password && (
             <span className="text-error text-sm">{errors.password.message}</span>
           )}
+          <div className="text-right">
+            <Link to="/forgot-password" className="link link-primary text-sm">
+              パスワードをお忘れの方はこちら
+            </Link>
+          </div>
         </label>
         <button
           type="submit"

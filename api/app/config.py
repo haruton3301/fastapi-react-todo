@@ -10,6 +10,11 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
     cookie_secure: bool = False
+    smtp_host: str = "mailpit"
+    smtp_port: int = 1025
+    smtp_from: str = "noreply@example.com"
+    frontend_url: str = "http://localhost:5173"
+    password_reset_token_expire_minutes: int = 60
 
     @property
     def cors_origins_list(self) -> list[str]:

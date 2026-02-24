@@ -1,9 +1,16 @@
 from datetime import datetime, timedelta, timezone
+from unittest.mock import AsyncMock, patch
 
 import jwt
 from fastapi.testclient import TestClient
 
-from app.auth import ALGORITHM, REFRESH_TOKEN_EXPIRES, TokenType, create_token
+from app.auth import (
+    ALGORITHM,
+    REFRESH_TOKEN_EXPIRES,
+    TokenType,
+    create_password_reset_token,
+    create_token,
+)
 from app.config import settings
 from app.models.user import User
 from tests.factories import UserFactory
@@ -191,3 +198,54 @@ class TestLogout:
         """Cookie がなくても 204 を返す"""
         res = client.post("/auth/logout")
         assert res.status_code == 204
+
+
+class TestPasswordReset:
+    def test_request_returns_202(self, client: TestClient, test_user: User):
+        with patch("app.routers.auth.send_password_reset_email", new_callable=AsyncMock):
+            res = client.post("/auth/password-reset/request", json={"email": "test@example.com"})
+        assert res.status_code == 202
+
+    def test_request_unknown_email_returns_202(self, client: TestClient):
+        with patch("app.routers.auth.send_password_reset_email", new_callable=AsyncMock):
+            res = client.post("/auth/password-reset/request", json={"email": "unknown@example.com"})
+        assert res.status_code == 202
+
+    def test_confirm_success(self, client: TestClient, test_user: User, db):
+        token = create_password_reset_token(test_user)
+        res = client.post("/auth/password-reset/confirm", json={
+            "token": token,
+            "new_password": "newpassword123",
+        })
+        assert res.status_code == 200
+        db.refresh(test_user)
+        # 新しいパスワードでログインできること
+        login_res = client.post("/auth/login", data={
+            "username": "test@example.com",
+            "password": "newpassword123",
+        })
+        assert login_res.status_code == 200
+
+    def test_confirm_invalid_token_returns_400(self, client: TestClient):
+        res = client.post("/auth/password-reset/confirm", json={
+            "token": "invalid.token.here",
+            "new_password": "newpassword123",
+        })
+        assert res.status_code == 400
+
+    def test_confirm_already_used_token_returns_400(
+        self, client: TestClient, test_user: User
+    ):
+        token = create_password_reset_token(test_user)
+        # 1回目のリセット
+        res = client.post("/auth/password-reset/confirm", json={
+            "token": token,
+            "new_password": "newpassword123",
+        })
+        assert res.status_code == 200
+        # 同じトークンで2回目 → パスワードが変わったので pwd フィンガープリント不一致
+        res2 = client.post("/auth/password-reset/confirm", json={
+            "token": token,
+            "new_password": "anotherpassword456",
+        })
+        assert res2.status_code == 400

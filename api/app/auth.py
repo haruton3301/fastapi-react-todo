@@ -24,8 +24,13 @@ ALGORITHM = "HS256"
 class TokenType(StrEnum):
     ACCESS = "access"
     REFRESH = "refresh"
+    PASSWORD_RESET = "password_reset"
+
 ACCESS_TOKEN_EXPIRES = timedelta(minutes=settings.access_token_expire_minutes)
 REFRESH_TOKEN_EXPIRES = timedelta(days=settings.refresh_token_expire_days)
+PASSWORD_RESET_TOKEN_EXPIRES = timedelta(
+    minutes=settings.password_reset_token_expire_minutes
+)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -61,6 +66,29 @@ def verify_token(token: str, expected_type: TokenType) -> int:
         return int(user_id)
     except jwt.InvalidTokenError:
         raise credentials_exception
+
+
+def create_password_reset_token(user: User) -> str:
+    expire = datetime.now(timezone.utc) + PASSWORD_RESET_TOKEN_EXPIRES
+    payload = {
+        "sub": str(user.id),
+        "type": TokenType.PASSWORD_RESET,
+        "pwd": user.hashed_password[:8],
+        "exp": expire,
+    }
+    return jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM)
+
+
+def decode_password_reset_token(token: str) -> tuple[int, str]:
+    """(user_id, pwd_fingerprint) を返す。不正なら HTTPException(400)"""
+    error = HTTPException(status_code=400, detail="Invalid or expired token")
+    try:
+        payload = jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
+    except jwt.InvalidTokenError:
+        raise error
+    if payload.get("type") != TokenType.PASSWORD_RESET:
+        raise error
+    return int(payload["sub"]), payload.get("pwd", "")
 
 
 def set_refresh_cookie(response: Response, token: str) -> None:
