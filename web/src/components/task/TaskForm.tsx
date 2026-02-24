@@ -29,7 +29,6 @@ export function TaskForm({ defaultValues, onSubmit, isPending }: Props) {
       title: "",
       content: "",
       due_date: "",
-      status_id: statuses[0]?.id ?? 0,
     },
   });
 
@@ -89,6 +88,7 @@ export function TaskForm({ defaultValues, onSubmit, isPending }: Props) {
           className={`select select-bordered w-full ${errors.status_id ? "select-error" : ""}`}
           {...register("status_id", { valueAsNumber: true })}
         >
+          <option value="">選択してください</option>
           {statuses.map((s) => (
             <option key={s.id} value={s.id}>
               {s.name}

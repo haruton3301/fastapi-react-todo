@@ -9,5 +9,8 @@ z.config({
     if (iss.code === "invalid_format" && iss.format === "date") {
       return "正しい日付形式で入力してください";
     }
+    if (iss.code === "invalid_type" && iss.expected === "number" && iss.path?.includes("status_id")) {
+      return "ステータスを選択してください";
+    }
   },
 });
