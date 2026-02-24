@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from app.auth import ALGORITHM, REFRESH_TOKEN_EXPIRES, TokenType, create_token
 from app.config import settings
 from app.models.user import User
+from tests.factories import UserFactory
 
 
 SIGNUP_JSON = {
@@ -143,6 +144,31 @@ class TestRefresh:
         res = client.post(
             "/auth/refresh", cookies={"refresh_token": access_token}
         )
+        assert res.status_code == 401
+
+
+class TestUpdateMe:
+    def test_update(self, client: TestClient, test_user: User, auth_headers: dict):
+        res = client.put("/auth/me", json={"username": "newname"}, headers=auth_headers)
+        assert res.status_code == 200
+        body = res.json()
+        assert body["username"] == "newname"
+
+    def test_duplicate_username_returns_409(
+        self, client: TestClient, db, test_user: User, auth_headers: dict
+    ):
+        UserFactory(username="otheruser", email="other@example.com")
+        res = client.put("/auth/me", json={"username": "otheruser"}, headers=auth_headers)
+        assert res.status_code == 409
+
+    def test_short_username_returns_422(
+        self, client: TestClient, test_user: User, auth_headers: dict
+    ):
+        res = client.put("/auth/me", json={"username": "ab"}, headers=auth_headers)
+        assert res.status_code == 422
+
+    def test_unauthenticated_returns_401(self, client: TestClient):
+        res = client.put("/auth/me", json={"username": "newname"})
         assert res.status_code == 401
 
 

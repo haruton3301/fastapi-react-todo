@@ -72,6 +72,9 @@ function RootLayout() {
                 </div>
                 <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box shadow-sm w-40 p-2">
                   <li>
+                    <Link to="/profile">プロフィール</Link>
+                  </li>
+                  <li>
                     <button onClick={handleLogout}>ログアウト</button>
                   </li>
                 </ul>

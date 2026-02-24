@@ -18,7 +18,7 @@ from app.auth import (
 from app.crud import user as user_crud
 from app.database import get_db
 from app.models.user import User
-from app.schemas.auth import Token, UserCreate, UserResponse
+from app.schemas.auth import Token, UserCreate, UserResponse, UsernameUpdate
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -78,3 +78,15 @@ def logout(response: Response):
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.put("/me", response_model=UserResponse)
+def update_me(
+    user_data: UsernameUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        return user_crud.update_username(db, current_user, user_data.username)
+    except psycopg2_errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Username already taken")

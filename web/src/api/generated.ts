@@ -194,6 +194,14 @@ export interface UserResponse {
   email: string;
 }
 
+export interface UsernameUpdate {
+  /**
+   * @minLength 3
+   * @maxLength 150
+   */
+  username: string;
+}
+
 export type ListTasksTasksGetParams = {
 order?: SortOrder;
 q?: string | null;
@@ -599,6 +607,77 @@ export function useGetMeAuthMeGet<TData = Awaited<ReturnType<typeof getMeAuthMeG
 
 
 
+/**
+ * @summary Update Me
+ */
+export const getUpdateMeAuthMePutUrl = () => {
+
+
+  
+
+  return `/auth/me`
+}
+
+export const updateMeAuthMePut = async (usernameUpdate: UsernameUpdate, options?: RequestInit): Promise<UserResponse> => {
+  
+  return client<UserResponse>(getUpdateMeAuthMePutUrl(),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      usernameUpdate,)
+  }
+);}
+
+
+
+
+export const getUpdateMeAuthMePutMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMeAuthMePut>>, TError,{data: UsernameUpdate}, TContext>, request?: SecondParameter<typeof client>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMeAuthMePut>>, TError,{data: UsernameUpdate}, TContext> => {
+
+const mutationKey = ['updateMeAuthMePut'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMeAuthMePut>>, {data: UsernameUpdate}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateMeAuthMePut(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMeAuthMePutMutationResult = NonNullable<Awaited<ReturnType<typeof updateMeAuthMePut>>>
+    export type UpdateMeAuthMePutMutationBody = UsernameUpdate
+    export type UpdateMeAuthMePutMutationError = HTTPValidationError
+
+    /**
+ * @summary Update Me
+ */
+export const useUpdateMeAuthMePut = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMeAuthMePut>>, TError,{data: UsernameUpdate}, TContext>, request?: SecondParameter<typeof client>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateMeAuthMePut>>,
+        TError,
+        {data: UsernameUpdate},
+        TContext
+      > => {
+      return useMutation(getUpdateMeAuthMePutMutationOptions(options), queryClient);
+    }
+    
 /**
  * @summary List Statuses
  */

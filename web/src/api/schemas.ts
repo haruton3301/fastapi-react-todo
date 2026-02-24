@@ -57,6 +57,25 @@ export const GetMeAuthMeGetResponse = zod.object({
 
 
 /**
+ * @summary Update Me
+ */
+export const updateMeAuthMePutBodyUsernameMin = 3;
+export const updateMeAuthMePutBodyUsernameMax = 150;
+
+
+
+export const UpdateMeAuthMePutBody = zod.object({
+  "username": zod.string().min(updateMeAuthMePutBodyUsernameMin).max(updateMeAuthMePutBodyUsernameMax)
+})
+
+export const UpdateMeAuthMePutResponse = zod.object({
+  "id": zod.number(),
+  "username": zod.string(),
+  "email": zod.string()
+})
+
+
+/**
  * @summary List Statuses
  */
 export const listStatusesStatusesGetResponseStatusesItemNameMax = 50;

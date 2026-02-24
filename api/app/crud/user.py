@@ -11,6 +11,17 @@ def get_user_by_email(db: Session, email: str) -> User | None:
     return db.scalars(select(User).where(User.email == email)).first()
 
 
+def update_username(db: Session, user: User, new_username: str) -> User:
+    user.username = new_username
+    try:
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        raise e.orig
+    db.refresh(user)
+    return user
+
+
 def create_user(db: Session, user_data: UserCreate) -> User:
     user = User(
         username=user_data.username,
