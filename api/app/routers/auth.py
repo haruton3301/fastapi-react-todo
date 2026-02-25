@@ -23,6 +23,7 @@ from app.database import get_db
 from app.email import send_password_reset_email
 from app.models.user import User
 from app.schemas.auth import (
+    LoginResponse,
     PasswordResetConfirm,
     PasswordResetRequest,
     Token,
@@ -45,7 +46,7 @@ def signup(user_data: UserCreate, db: Session = Depends(get_db)):
         )
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=LoginResponse)
 def login(
     response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -61,7 +62,10 @@ def login(
     access_token = create_token(user.id, TokenType.ACCESS, ACCESS_TOKEN_EXPIRES)
     refresh_token = create_token(user.id, TokenType.REFRESH, REFRESH_TOKEN_EXPIRES)
     set_refresh_cookie(response, refresh_token)
-    return Token(access_token=access_token)
+    return LoginResponse(
+        token=Token(access_token=access_token),
+        user=user,
+    )
 
 
 @router.post("/refresh", response_model=Token)

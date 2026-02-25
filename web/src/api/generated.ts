@@ -48,6 +48,22 @@ export interface HTTPValidationError {
   detail?: ValidationError[];
 }
 
+export interface Token {
+  access_token: string;
+  token_type?: string;
+}
+
+export interface UserResponse {
+  id: number;
+  username: string;
+  email: string;
+}
+
+export interface LoginResponse {
+  token: Token;
+  user: UserResponse;
+}
+
 export interface PasswordResetConfirm {
   token: string;
   /** @minLength 8 */
@@ -182,11 +198,6 @@ export interface TaskUpdate {
   status_id: number;
 }
 
-export interface Token {
-  access_token: string;
-  token_type?: string;
-}
-
 export interface UserCreate {
   /**
    * @minLength 3
@@ -196,12 +207,6 @@ export interface UserCreate {
   email: string;
   /** @minLength 8 */
   password: string;
-}
-
-export interface UserResponse {
-  id: number;
-  username: string;
-  email: string;
 }
 
 export interface UsernameUpdate {
@@ -303,7 +308,7 @@ export const getLoginAuthLoginPostUrl = () => {
   return `/auth/login`
 }
 
-export const loginAuthLoginPost = async (bodyLoginAuthLoginPost: BodyLoginAuthLoginPost, options?: RequestInit): Promise<Token> => {
+export const loginAuthLoginPost = async (bodyLoginAuthLoginPost: BodyLoginAuthLoginPost, options?: RequestInit): Promise<LoginResponse> => {
     const formUrlEncoded = new URLSearchParams();
 if(bodyLoginAuthLoginPost.grant_type !== undefined && bodyLoginAuthLoginPost.grant_type !== null) {
  formUrlEncoded.append(`grant_type`, bodyLoginAuthLoginPost.grant_type);
@@ -320,7 +325,7 @@ if(bodyLoginAuthLoginPost.client_secret !== undefined && bodyLoginAuthLoginPost.
  formUrlEncoded.append(`client_secret`, bodyLoginAuthLoginPost.client_secret);
  }
 
-  return client<Token>(getLoginAuthLoginPostUrl(),
+  return client<LoginResponse>(getLoginAuthLoginPostUrl(),
   {      
     ...options,
     method: 'POST',

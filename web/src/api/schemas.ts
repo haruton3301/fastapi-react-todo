@@ -27,11 +27,18 @@ export const SignupAuthSignupPostBody = zod.object({
 /**
  * @summary Login
  */
-export const loginAuthLoginPostResponseTokenTypeDefault = `bearer`;
+export const loginAuthLoginPostResponseTokenTokenTypeDefault = `bearer`;
 
 export const LoginAuthLoginPostResponse = zod.object({
+  "token": zod.object({
   "access_token": zod.string(),
-  "token_type": zod.string().default(loginAuthLoginPostResponseTokenTypeDefault)
+  "token_type": zod.string().default(loginAuthLoginPostResponseTokenTokenTypeDefault)
+}),
+  "user": zod.object({
+  "id": zod.number(),
+  "username": zod.string(),
+  "email": zod.string()
+})
 })
 
 

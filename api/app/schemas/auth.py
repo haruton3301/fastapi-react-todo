@@ -24,6 +24,11 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
+class LoginResponse(BaseModel):
+    token: Token
+    user: UserResponse
+
+
 class PasswordResetRequest(BaseModel):
     email: EmailStr
 

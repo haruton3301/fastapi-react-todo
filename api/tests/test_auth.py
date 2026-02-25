@@ -67,8 +67,10 @@ class TestLogin:
         })
         assert res.status_code == 200
         body = res.json()
-        assert "access_token" in body
-        assert body["token_type"] == "bearer"
+        assert "access_token" in body["token"]
+        assert body["token"]["token_type"] == "bearer"
+        assert "id" in body["user"]
+        assert body["user"]["email"] == "test@example.com"
 
     def test_login_sets_refresh_cookie(self, client: TestClient, test_user: User):
         res = client.post("/auth/login", data={

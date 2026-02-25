@@ -20,21 +20,14 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       <span className="loading loading-spinner loading-lg" />
     </div>
   ),
-  beforeLoad: async () => {
-    if (!useAuthStore.getState().accessToken) {
-      try {
-        await refreshAccessToken();
-      } catch {
-        return;
-      }
-    }
-    if (!useAuthStore.getState().user) {
-      try {
-        const me = await getMeAuthMeGet();
-        useAuthStore.getState().setUser(me);
-      } catch {
-        useAuthStore.getState().clearAuth();
-      }
+  beforeLoad: async ({ cause }) => {
+    if (cause !== "enter") return;
+    try {
+      await refreshAccessToken();
+      const me = await getMeAuthMeGet();
+      useAuthStore.getState().setUser(me);
+    } catch {
+      useAuthStore.getState().clearAuth();
     }
   },
   component: RootLayout,

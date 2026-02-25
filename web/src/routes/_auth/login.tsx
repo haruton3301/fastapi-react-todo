@@ -18,7 +18,8 @@ export const Route = createFileRoute("/_auth/login")({
 });
 
 function Login() {
-  const {navigate} = useRouter();
+  const { navigate } = useRouter();
+  const { setAccessToken, setUser } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
   const {
     register,
@@ -31,7 +32,8 @@ function Login() {
   const loginMutation = useLoginAuthLoginPost({
     mutation: {
       onSuccess: async (data) => {
-        useAuthStore.getState().setAccessToken(data.access_token);
+        setAccessToken(data.token.access_token);
+        setUser(data.user);
         navigate({ to: "/" });
       },
       onError: () => {
