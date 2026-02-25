@@ -1,27 +1,32 @@
-import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
 import {
   useListTasksTasksGet,
   useListStatusesStatusesGet,
   useDeleteTaskTasksTaskIdDelete,
   getListTasksTasksGetQueryKey,
-  type SortOrder,
   type StatusResponse,
 } from "../../api/generated";
 import { TaskList } from "../../components/task/TaskList";
 import { myToast } from "../../lib/toast";
 
+const searchSchema = z.object({
+  order: z.enum(["asc", "desc"]).default("desc").catch("desc"),
+  q: z.string().default("").catch(""),
+});
+
 export const Route = createFileRoute("/_protected/")({
+  validateSearch: searchSchema,
   component: Index,
 });
 
 function Index() {
-  const [order, setOrder] = useState<SortOrder>("desc");
-  const [keyword, setKeyword] = useState<string>("");
+  const { order, q } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const queryClient = useQueryClient();
   const { data, isLoading, isFetching, error } = useListTasksTasksGet(
-    { order, q: keyword || undefined },
+    { order, q: q || undefined },
     { query: { placeholderData: keepPreviousData } },
   );
   const { data: statusData } = useListStatusesStatusesGet();
@@ -58,7 +63,9 @@ function Index() {
         tasks={data.tasks}
         statusMap={statusMap}
         order={order}
-        onToggleOrder={() => setOrder((prev) => (prev === "desc" ? "asc" : "desc"))}
+        onToggleOrder={() =>
+          navigate({ search: (prev) => ({ ...prev, order: order === "desc" ? "asc" : "desc" }), replace: true })
+        }
         onDelete={(id) => deleteMutation.mutate({ taskId: id })}
       />
     );
@@ -71,8 +78,10 @@ function Index() {
           type="text"
           placeholder="キーワードで検索..."
           className="input input-bordered w-full"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
+          value={q}
+          onChange={(e) =>
+            navigate({ search: (prev) => ({ ...prev, q: e.target.value }), replace: true })
+          }
         />
         {isFetching && (
           <span className="loading loading-spinner loading-sm absolute right-3 top-1/2 -translate-y-1/2" />

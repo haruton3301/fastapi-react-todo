@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useCreateTaskTasksPost,
@@ -6,13 +6,14 @@ import {
 } from "../../api/generated";
 import { TaskForm } from "../../components/task/TaskForm";
 import { myToast } from "../../lib/toast";
+import { useBackToList } from "../../lib/navigation";
 
 export const Route = createFileRoute("/_protected/tasks/new")({
   component: TaskNew,
 });
 
 function TaskNew() {
-  const navigate = useNavigate();
+  const backToList = useBackToList();
   const queryClient = useQueryClient();
   const mutation = useCreateTaskTasksPost({
     mutation: {
@@ -21,7 +22,7 @@ function TaskNew() {
           queryKey: getListTasksTasksGetQueryKey(),
         });
         myToast.success("タスクを作成しました");
-        navigate({ to: "/" });
+        backToList();
       },
       onError: () => {
         myToast.error("タスクの作成に失敗しました");

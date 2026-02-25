@@ -55,7 +55,7 @@ function RootLayout() {
               <Link to="/statuses" className="btn btn-ghost btn-sm">
                 ステータス管理
               </Link>
-              <Link to="/tasks/new" className="btn btn-primary btn-sm">
+              <Link to="/tasks/new" state={{ from: window.location.search }} className="btn btn-primary btn-sm">
                 新規作成
               </Link>
               <div className="dropdown dropdown-end dropdown-hover">

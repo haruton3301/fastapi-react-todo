@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useGetTaskTasksTaskIdGet,
@@ -7,6 +7,7 @@ import {
 } from "../../api/generated";
 import { TaskForm } from "../../components/task/TaskForm";
 import { myToast } from "../../lib/toast";
+import { useBackToList } from "../../lib/navigation";
 
 export const Route = createFileRoute("/_protected/tasks/$taskId/edit")({
   component: TaskEdit,
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/_protected/tasks/$taskId/edit")({
 
 function TaskEdit() {
   const { taskId } = Route.useParams();
-  const navigate = useNavigate();
+  const backToList = useBackToList();
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useGetTaskTasksTaskIdGet(Number(taskId));
@@ -25,7 +26,7 @@ function TaskEdit() {
           queryKey: getListTasksTasksGetQueryKey(),
         });
         myToast.success("タスクを更新しました");
-        navigate({ to: "/" });
+        backToList();
       },
       onError: () => {
         myToast.error("タスクの更新に失敗しました");

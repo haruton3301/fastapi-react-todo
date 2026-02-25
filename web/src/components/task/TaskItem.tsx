@@ -30,6 +30,7 @@ export function TaskItem({ task, status, onDelete }: Props) {
         <Link
           to="/tasks/$taskId/edit"
           params={{ taskId: String(task.id) }}
+          state={{ from: window.location.search }}
           className="font-semibold link link-hover"
         >
           {task.title}
@@ -64,6 +65,7 @@ export function TaskItem({ task, status, onDelete }: Props) {
           <Link
             to="/tasks/$taskId/edit"
             params={{ taskId: String(task.id) }}
+            state={{ from: window.location.search }}
             className="btn btn-ghost btn-xs"
           >
             編集
