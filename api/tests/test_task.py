@@ -86,6 +86,28 @@ class TestListTasks:
         tasks = client.get("/tasks", headers=auth_headers).json()["tasks"]
         assert len(tasks) == 3
 
+    def test_due_date_from(self, client: TestClient, test_tasks: list[Task], auth_headers: dict):
+        # タスク1(6/1), タスク2(9/15), タスク3(12/31) → 9/15以降
+        tasks = client.get("/tasks", params={"due_date_from": "2025-09-15"}, headers=auth_headers).json()["tasks"]
+        assert len(tasks) == 2
+        titles = {t["title"] for t in tasks}
+        assert titles == {"タスク2", "タスク3"}
+
+    def test_due_date_to(self, client: TestClient, test_tasks: list[Task], auth_headers: dict):
+        # タスク1(6/1), タスク2(9/15), タスク3(12/31) → 9/15以前
+        tasks = client.get("/tasks", params={"due_date_to": "2025-09-15"}, headers=auth_headers).json()["tasks"]
+        assert len(tasks) == 2
+        titles = {t["title"] for t in tasks}
+        assert titles == {"タスク1", "タスク2"}
+
+    def test_due_date_range(self, client: TestClient, test_tasks: list[Task], auth_headers: dict):
+        tasks = client.get("/tasks", params={"due_date_from": "2025-06-01", "due_date_to": "2025-09-15"}, headers=auth_headers).json()["tasks"]
+        assert len(tasks) == 2
+
+    def test_due_date_no_match(self, client: TestClient, test_tasks: list[Task], auth_headers: dict):
+        tasks = client.get("/tasks", params={"due_date_from": "2030-01-01"}, headers=auth_headers).json()["tasks"]
+        assert len(tasks) == 0
+
     def test_unauthenticated_returns_401(self, client: TestClient):
         res = client.get("/tasks")
         assert res.status_code == 401

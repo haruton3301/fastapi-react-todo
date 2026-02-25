@@ -220,6 +220,8 @@ export interface UsernameUpdate {
 export type ListTasksTasksGetParams = {
 order?: SortOrder;
 q?: string | null;
+due_date_from?: string | null;
+due_date_to?: string | null;
 };
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];

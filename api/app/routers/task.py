@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
@@ -29,11 +31,20 @@ def get_task_or_404(
 def list_tasks(
     order: SortOrder = Query(default=SortOrder.desc),
     q: str | None = Query(default=None),
+    due_date_from: date | None = Query(default=None),
+    due_date_to: date | None = Query(default=None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """タスク一覧取得（締切日でソート）"""
-    tasks = task_crud.get_tasks(db, user_id=current_user.id, order=order, keyword=q)
+    tasks = task_crud.get_tasks(
+        db,
+        user_id=current_user.id,
+        order=order,
+        keyword=q,
+        due_date_from=due_date_from,
+        due_date_to=due_date_to,
+    )
     return TaskListResponse(tasks=tasks)
 
 
