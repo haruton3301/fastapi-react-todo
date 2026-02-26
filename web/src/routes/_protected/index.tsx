@@ -9,6 +9,7 @@ import {
   type StatusResponse,
 } from "../../api/generated";
 import { TaskList } from "../../components/task/TaskList";
+import { KeywordInput } from "../../components/task/KeywordInput";
 import { myToast } from "../../lib/toast";
 
 const searchSchema = z.object({
@@ -27,7 +28,7 @@ function Index() {
   const { order, q, due_date_from, due_date_to } = Route.useSearch();
   const navigate = Route.useNavigate();
   const queryClient = useQueryClient();
-  const { data, isLoading, isFetching, error } = useListTasksTasksGet(
+  const { data, isLoading, error } = useListTasksTasksGet(
     {
       order,
       q: q || undefined,
@@ -81,20 +82,10 @@ function Index() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="キーワードで検索..."
-            className="input input-bordered w-full"
-            value={q}
-            onChange={(e) =>
-              navigate({ search: (prev) => ({ ...prev, q: e.target.value }), replace: true })
-            }
-          />
-          {isFetching && (
-            <span className="loading loading-spinner loading-sm absolute right-3 top-1/2 -translate-y-1/2" />
-          )}
-        </div>
+        <KeywordInput
+          value={q}
+          onChange={(v) => navigate({ search: (prev) => ({ ...prev, q: v }), replace: true })}
+        />
         <div className="flex items-center gap-2">
           <span className="text-sm text-base-content/60 shrink-0">締切日</span>
           <input
