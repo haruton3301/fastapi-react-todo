@@ -9,6 +9,7 @@ import { logout, refreshAccessToken } from "../lib/auth";
 import { useAuthStore } from "../store/auth";
 import { getMeAuthMeGet } from "../api/generated";
 import { FaUserCircle } from "react-icons/fa";
+import { LinkWithFromState } from "../components/LinkWithFromState";
 
 export interface RouterContext {
   queryClient: QueryClient;
@@ -55,9 +56,9 @@ function RootLayout() {
               <Link to="/statuses" className="btn btn-ghost btn-sm">
                 ステータス管理
               </Link>
-              <Link to="/tasks/new" state={{ from: window.location.search }} className="btn btn-primary btn-sm">
+              <LinkWithFromState to="/tasks/new" className="btn btn-primary btn-sm">
                 新規作成
-              </Link>
+              </LinkWithFromState>
               <div className="dropdown dropdown-end dropdown-hover">
                 <div tabIndex={0} role="button" className="btn btn-ghost btn-sm gap-1">
                   <FaUserCircle className="text-lg" />

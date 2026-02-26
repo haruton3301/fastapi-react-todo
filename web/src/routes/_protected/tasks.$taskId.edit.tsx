@@ -7,7 +7,7 @@ import {
 } from "../../api/generated";
 import { TaskForm } from "../../components/task/TaskForm";
 import { myToast } from "../../lib/toast";
-import { useBackToList } from "../../lib/navigation";
+import { useBackWithFallback } from "../../lib/navigation";
 
 export const Route = createFileRoute("/_protected/tasks/$taskId/edit")({
   component: TaskEdit,
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_protected/tasks/$taskId/edit")({
 
 function TaskEdit() {
   const { taskId } = Route.useParams();
-  const backToList = useBackToList();
+  const back = useBackWithFallback("/");
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useGetTaskTasksTaskIdGet(Number(taskId));
@@ -26,7 +26,7 @@ function TaskEdit() {
           queryKey: getListTasksTasksGetQueryKey(),
         });
         myToast.success("タスクを更新しました");
-        backToList();
+        back();
       },
       onError: () => {
         myToast.error("タスクの更新に失敗しました");

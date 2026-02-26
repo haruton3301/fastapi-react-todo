@@ -6,14 +6,14 @@ import {
 } from "../../api/generated";
 import { TaskForm } from "../../components/task/TaskForm";
 import { myToast } from "../../lib/toast";
-import { useBackToList } from "../../lib/navigation";
+import { useBackWithFallback } from "../../lib/navigation";
 
 export const Route = createFileRoute("/_protected/tasks/new")({
   component: TaskNew,
 });
 
 function TaskNew() {
-  const backToList = useBackToList();
+  const back = useBackWithFallback("/");
   const queryClient = useQueryClient();
   const mutation = useCreateTaskTasksPost({
     mutation: {
@@ -22,7 +22,7 @@ function TaskNew() {
           queryKey: getListTasksTasksGetQueryKey(),
         });
         myToast.success("タスクを作成しました");
-        backToList();
+        back();
       },
       onError: () => {
         myToast.error("タスクの作成に失敗しました");

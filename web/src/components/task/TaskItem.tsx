@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
 import type { TaskResponse, StatusResponse } from "../../api/generated";
 import { formatDate } from "../../lib/format";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
+import { LinkWithFromState } from "../LinkWithFromState";
 
 type Props = {
   task: TaskResponse;
@@ -27,14 +27,13 @@ export function TaskItem({ task, status, onDelete }: Props) {
     <div className={`py-4 px-4 hover:bg-black/5 transition-colors ${isOverdue ? "bg-error/5" : "bg-white"}`}>
       {/* 1行目: タイトル + ステータス + 締切日 */}
       <div className="flex items-center justify-between">
-        <Link
+        <LinkWithFromState
           to="/tasks/$taskId/edit"
           params={{ taskId: String(task.id) }}
-          state={{ from: window.location.search }}
           className="font-semibold link link-hover"
         >
           {task.title}
-        </Link>
+        </LinkWithFromState>
         <div className="flex items-center gap-2">
           {status && (
             <span
@@ -62,14 +61,13 @@ export function TaskItem({ task, status, onDelete }: Props) {
           <span>更新: {formatDate(task.updated_at)}</span>
         </div>
         <div className="flex gap-1">
-          <Link
+          <LinkWithFromState
             to="/tasks/$taskId/edit"
             params={{ taskId: String(task.id) }}
-            state={{ from: window.location.search }}
             className="btn btn-ghost btn-xs"
           >
             編集
-          </Link>
+          </LinkWithFromState>
           <button
             className="btn btn-ghost btn-xs text-error"
             onClick={() => setIsModalOpen(true)}
