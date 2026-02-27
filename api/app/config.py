@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     smtp_host: str = "mailpit"
     smtp_port: int = 1025
     smtp_from: str = "noreply@example.com"
-    frontend_url: str = "http://localhost:5173"
+    frontend_url: str = "http://localhost:3000"
     password_reset_token_expire_minutes: int = 60
 
     @property

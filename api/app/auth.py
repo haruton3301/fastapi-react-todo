@@ -68,29 +68,6 @@ def verify_token(token: str, expected_type: TokenType) -> int:
         raise credentials_exception
 
 
-def create_password_reset_token(user: User) -> str:
-    expire = datetime.now(timezone.utc) + PASSWORD_RESET_TOKEN_EXPIRES
-    payload = {
-        "sub": str(user.id),
-        "type": TokenType.PASSWORD_RESET,
-        "pwd": user.hashed_password[:8],
-        "exp": expire,
-    }
-    return jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM)
-
-
-def decode_password_reset_token(token: str) -> tuple[int, str]:
-    """(user_id, pwd_fingerprint) を返す。不正なら HTTPException(400)"""
-    error = HTTPException(status_code=400, detail="Invalid or expired token")
-    try:
-        payload = jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
-    except jwt.InvalidTokenError:
-        raise error
-    if payload.get("type") != TokenType.PASSWORD_RESET:
-        raise error
-    return int(payload["sub"]), payload.get("pwd", "")
-
-
 def set_refresh_cookie(response: Response, token: str) -> None:
     response.set_cookie(
         key="refresh_token",
