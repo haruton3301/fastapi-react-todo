@@ -12,7 +12,7 @@ from app.auth import (
     TokenType,
     clear_refresh_cookie,
     create_token,
-    get_current_user,
+    get_current_user_id,
     set_refresh_cookie,
     verify_password,
     verify_token,
@@ -90,18 +90,27 @@ def logout(response: Response):
 
 
 @router.get("/me", response_model=UserResponse)
-def get_me(current_user: User = Depends(get_current_user)):
-    return current_user
+def get_me(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    user = db.scalars(select(User).where(User.id == user_id)).first()
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    return user
 
 
 @router.put("/me", response_model=UserResponse)
 def update_me(
     user_data: UsernameUpdate,
-    current_user: User = Depends(get_current_user),
+    user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
+    user = db.scalars(select(User).where(User.id == user_id)).first()
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     try:
-        return user_crud.update_username(db, current_user, user_data.username)
+        return user_crud.update_username(db, user, user_data.username)
     except psycopg2_errors.UniqueViolation:
         raise HTTPException(status_code=409, detail="Username already taken")
 

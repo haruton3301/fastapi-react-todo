@@ -3,16 +3,12 @@ from enum import StrEnum
 
 import jwt
 from fastapi import Depends, HTTPException, status
-from sqlalchemy import select
 from fastapi.responses import Response
 from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from pwdlib.hashers.bcrypt import BcryptHasher
-from sqlalchemy.orm import Session
 
 from app.config import settings
-from app.database import get_db
-from app.models.user import User
 
 pwd_context = PasswordHash((BcryptHasher(),))
 
@@ -89,15 +85,9 @@ def clear_refresh_cookie(response: Response) -> None:
     )
 
 
-def get_current_user(
+def get_current_user_id(
     token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db),
-) -> User:
-    user_id = verify_token(token, TokenType.ACCESS)
-    user = db.scalars(select(User).where(User.id == user_id)).first()
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-        )
-    return user
+) -> int:
+    return verify_token(token, TokenType.ACCESS)
+
+

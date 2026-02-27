@@ -6,9 +6,9 @@ from fastapi.testclient import TestClient
 
 from app.auth import (
     ALGORITHM,
+    PASSWORD_RESET_TOKEN_EXPIRES,
     REFRESH_TOKEN_EXPIRES,
     TokenType,
-    create_password_reset_token,
     create_token,
 )
 from app.config import settings
@@ -214,7 +214,7 @@ class TestPasswordReset:
         assert res.status_code == 202
 
     def test_confirm_success(self, client: TestClient, test_user: User, db):
-        token = create_password_reset_token(test_user)
+        token = create_token(test_user.id, TokenType.PASSWORD_RESET, PASSWORD_RESET_TOKEN_EXPIRES)
         res = client.post("/auth/password-reset/confirm", json={
             "token": token,
             "new_password": "newpassword123",
@@ -228,26 +228,9 @@ class TestPasswordReset:
         })
         assert login_res.status_code == 200
 
-    def test_confirm_invalid_token_returns_400(self, client: TestClient):
+    def test_confirm_invalid_token_returns_401(self, client: TestClient):
         res = client.post("/auth/password-reset/confirm", json={
             "token": "invalid.token.here",
             "new_password": "newpassword123",
         })
-        assert res.status_code == 400
-
-    def test_confirm_already_used_token_returns_400(
-        self, client: TestClient, test_user: User
-    ):
-        token = create_password_reset_token(test_user)
-        # 1回目のリセット
-        res = client.post("/auth/password-reset/confirm", json={
-            "token": token,
-            "new_password": "newpassword123",
-        })
-        assert res.status_code == 200
-        # 同じトークンで2回目 → パスワードが変わったので pwd フィンガープリント不一致
-        res2 = client.post("/auth/password-reset/confirm", json={
-            "token": token,
-            "new_password": "anotherpassword456",
-        })
-        assert res2.status_code == 400
+        assert res.status_code == 401

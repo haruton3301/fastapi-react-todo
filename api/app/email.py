@@ -3,8 +3,7 @@ from fastapi_mail import FastMail, MessageSchema, MessageType, ConnectionConfig
 from app.config import settings
 
 
-def _make_conf() -> ConnectionConfig:
-    return ConnectionConfig(
+conf = ConnectionConfig(
         MAIL_USERNAME="",
         MAIL_PASSWORD="",
         MAIL_FROM=settings.smtp_from,
@@ -25,4 +24,5 @@ async def send_password_reset_email(to: str, token: str) -> None:
         body=f"以下のURLからパスワードをリセットしてください（有効期限1時間）:\n\n{reset_url}",
         subtype=MessageType.plain,
     )
-    await FastMail(_make_conf()).send_message(message)
+    fm = FastMail(conf)
+    await fm.send_message(message)
